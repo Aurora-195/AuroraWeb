@@ -1,5 +1,4 @@
-# Aurora_web
- Web app for Aurora
+# Aurora_web (React + Vite)
 
 ## Installation  
 
