@@ -10,7 +10,7 @@ export default function Header() {
                     </svg>
                     <h1 className="text-4xl font-bold">Aurora</h1>
                 </div>
-                <div className="h-18 hover:text-black">
+                <div className="h-18 hover:text-blue-950">
                     <Link to={'/login'} className='items-center px-4'>
                         <h1 className="text-xl font-bold">Login/Signup</h1>
                     </Link>
