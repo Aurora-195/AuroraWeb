@@ -1,0 +1,15 @@
+[build]
+  # Specify the command to build your project.
+  # This depends on your project setup. For example, if you're using Vite, it would be 'vite build'.
+  command = "vite build"
+
+  # Specify the directory that contains the output of your build.
+  # This is where Netlify will look for files to deploy.
+  # If you're using Vite, this would typically be 'dist'.
+  publish = "dist"
+
+[[headers]]
+  # Ensure JavaScript files are served with the correct MIME type.
+  for = "/*.js"
+  [headers.values]
+  Content-Type = "application/javascript"
