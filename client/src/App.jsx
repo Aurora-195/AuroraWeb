@@ -7,22 +7,25 @@ import Layout from './Layout'
 import IndexPage from './pages/IndexPage'
 import LoginPage from './pages/LoginPage'
 import MainPage from './pages/MainPage'
+import RegisterPage from './pages/RegisterPage'
 
 axios.defaults.baseURL = 'http://127.0.0.1:4000';
 axios.defaults.withCredentials = true;
 
 function App() {
   return (
+    <div className='text-white h-[100vh] flex justify-center items-center bg-cover' style={{"background": "url('../src/assets/aurora-bg.png"}}>
     <Routes>
 
       <Route path="/" element={<Layout />}>
         <Route index element ={<IndexPage />} />
         <Route path ="/login" element={<LoginPage />} />
         <Route path ="/main" element={<MainPage />} />
+        <Route path ="/register" element={<RegisterPage />} />
       </Route>
       
     </Routes>
-    
+    </div>
     )
 }
 
