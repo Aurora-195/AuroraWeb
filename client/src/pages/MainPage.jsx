@@ -2,10 +2,10 @@ import Bar from '../charts/BarGraph';
 import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
 
-export default function LoginPage() {
+export default function MainPage() {
     const filler = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
-        <div className="flex flex-row mx-12 gap-x-5">
+        <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5">
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
                     <div className="items-center gap-x-7 flex flex-row my-4 w-4/12 text-sm font-bold text-gray-500">
