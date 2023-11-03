@@ -1,13 +1,31 @@
-import {Link, useActionData} from "react-router-dom";
+import {Link, useActionData, useNavigate} from "react-router-dom";
 import { useContext, useState } from "react";
 import axios from "axios";
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     async function handleLoginSubmit(ev) {
-        //handle login submit
+        ev.preventDefault(); // Prevent the default form submissio
+
+        try {
+            // Make the POST request to the API endpoint
+            const response = await axios.post('http://localhost:5000/users/login', {
+                login: email,
+                password: password
+            });
+
+            // If the response is successful, redirect to the home page
+            // console.log(response.data);
+            navigate('/main', { state: { user: response.data } });
+        } catch (error) {
+            // If there's an error in the request, log it or display it to the user
+            console.error("Error with login:", error.response ? error.response.data : error.message);
+            alert("Error registering the user.");
+        }
     }
     
     return (

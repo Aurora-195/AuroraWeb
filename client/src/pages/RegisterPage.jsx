@@ -1,4 +1,4 @@
-import {Link, useActionData} from "react-router-dom";
+import {Link, useActionData, useNavigate} from "react-router-dom";
 import { useContext, useState } from "react";
 import axios from "axios";
 
@@ -6,9 +6,33 @@ export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
+
+    const navigate = useNavigate();
+
     async function handleRegisterSubmit(ev) {
-        //handle register submit
+        ev.preventDefault(); // Prevent the default form submission
+
+        // Check if passwords match
+        if(password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        try {
+            // Make the POST request to the API endpoint
+            const response = await axios.post('http://localhost:5000/users/register', {
+                login: email,
+                password: password
+            });
+
+            // If the response is successful, redirect to the login page or home page
+            // console.log(response.data);
+            navigate('/main', { state: { user: response.data } });
+        } catch (error) {
+            // If there's an error in the request, log it or display it to the user
+            console.error("Error registering the user:", error.response ? error.response.data : error.message);
+            alert("Error registering the user.");
+        }
     }
 
     return (
