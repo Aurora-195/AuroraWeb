@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 
 export default function PieGraph({data}) {
+    if (data===undefined) return;
     const pieData = useMemo(() => {
         // Calculate total duration for each activity
         const activityDurations = data.map(activity => {
