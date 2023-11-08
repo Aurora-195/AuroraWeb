@@ -6,6 +6,7 @@ import {useLocation} from "react-router-dom";
 export default function MainPage() {
     const location = useLocation();
     const userData = location.state?.user.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
+    const activities = userData?.activities;
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
@@ -35,7 +36,7 @@ export default function MainPage() {
                         <div className="flex-1">
                             <div className="flex flex-row gap-x-2">
                                 <div className="flex-initial border-2 rounded-md shadow-lg w-4/12 h-[300px]">
-                                    <Pie/>
+                                    <Pie data={activities}/>
                                 </div>
                                 <div className="flex-initial border-2 rounded-md shadow-lg w-8/12 h-[300px]">
                                     <Line/>

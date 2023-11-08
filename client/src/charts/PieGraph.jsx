@@ -1,41 +1,39 @@
 import { ResponsivePie } from '@nivo/pie'
+import { useMemo } from 'react';
 
-export default function PieGraph() {
-    const data = [
-        {
-          "id": "lisp",
-          "label": "lisp",
-          "value": 413,
-          "color": "hsl(68, 70%, 50%)"
-        },
-        {
-          "id": "stylus",
-          "label": "stylus",
-          "value": 100,
-          "color": "hsl(290, 70%, 50%)"
-        },
-        {
-          "id": "rust",
-          "label": "rust",
-          "value": 406,
-          "color": "hsl(244, 70%, 50%)"
-        },
-        {
-          "id": "go",
-          "label": "go",
-          "value": 462,
-          "color": "hsl(209, 70%, 50%)"
-        },
-        {
-          "id": "erlang",
-          "label": "erlang",
-          "value": 520,
-          "color": "hsl(91, 70%, 50%)"
-        }
-      ];
+
+export default function PieGraph({data}) {
+    const pieData = useMemo(() => {
+        // Calculate total duration for each activity
+        const activityDurations = data.map(activity => {
+            const totalDuration = activity.instances.reduce((acc, instance) => {
+                // Only calculate duration for completed instances
+                if (instance.status === 'completed' && instance.endTime) {
+                    const start = new Date(instance.startTime).getTime();
+                    const end = new Date(instance.endTime).getTime();
+                    return acc + (end - start);
+                }
+                return acc;
+            }, 0);
+
+            // Convert milliseconds to hours
+            const durationInHours = totalDuration / (1000 * 60 * 60);
+
+            return {
+                id: activity.name,
+                label: activity.name,
+                value: durationInHours,
+                color: "hsl(" + Math.random() * 360 + ", 70%, 50%)",
+            };
+        });
+
+        return activityDurations;
+    }, [data]);
+
+
 
 return(<ResponsivePie
-    data={data}
+    data={pieData}
     margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
     innerRadius={0.5}
     padAngle={0.7}
