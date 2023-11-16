@@ -1,4 +1,4 @@
-import Bar from '../charts/BarGraph';
+import Timeline from '../charts/TimelineChart';
 import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
 import {useLocation} from "react-router-dom";
@@ -13,7 +13,7 @@ export default function MainPage() {
 
     const filler = userData?.login +" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
-        <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5">
+        <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5 h-full">
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
                     <div className="items-center gap-x-7 flex flex-row my-4 w-4/12 text-sm font-bold text-gray-500">
@@ -30,16 +30,16 @@ export default function MainPage() {
                         </div>
                     </div>
                     <div className="flex flex-col gap-y-2 w-full">
-                        <div className="flex-initial border-2 rounded-md shadow-lg h-[300px]">
-                            <Bar/>
+                        <div className="flex-initial border-2 rounded-md h-fill">
+                            <Timeline/>
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-row gap-x-2">
                                 <div className="flex-initial border-2 rounded-md shadow-lg w-4/12 h-[300px]">
                                     <Pie data={activities}/>
                                 </div>
-                                <div className="flex-initial border-2 rounded-md shadow-lg w-8/12 h-[300px]">
-                                    <Line/>
+                                <div className="flex-initial border-2 rounded-md shadow-lg w-8/12 h-[300px] px-2">
+                                    <Line data={activities}/>
                                 </div>
                             </div>
                         </div>

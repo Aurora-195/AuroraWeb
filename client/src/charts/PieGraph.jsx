@@ -1,9 +1,11 @@
 import { ResponsivePie } from '@nivo/pie'
 import { useMemo } from 'react';
 
+import { linearGradientDef } from '@nivo/core'
 
 export default function PieGraph({data}) {
     if (data===undefined) return;
+
     const pieData = useMemo(() => {
         // Calculate total duration for each activity
         const activityDurations = data.map(activity => {
@@ -24,7 +26,6 @@ export default function PieGraph({data}) {
                 id: activity.name,
                 label: activity.name,
                 value: durationInHours,
-                color: "hsl(" + Math.random() * 360 + ", 70%, 50%)",
             };
         });
 
@@ -35,47 +36,52 @@ export default function PieGraph({data}) {
 
 return(<ResponsivePie
     data={pieData}
-    margin={{ top: 5, right: 5, bottom: 60, left: 5 }}
+    margin={{ top: 5, right: 10, bottom: 5, left: 10 }}
     innerRadius={0.5}
     padAngle={0.7}
     cornerRadius={3}
     activeOuterRadiusOffset={8}
-    borderWidth={1}
-    borderColor={{
-        from: 'color',
-        modifiers: [
-            [
-                'darker',
-                0.2
-            ]
-        ]
-    }}
+    borderWidth={2}
+    borderColor={'white'}
     enableArcLinkLabels={false}
+    arcLabelsTextColor={"white"}
 
-    legends={[
-        {
-            anchor: 'bottom-left',
-            direction: 'column',
-            justify: false,
-            translateX: 0,
-            translateY: 55,
-            itemsSpacing: 0,
-            itemWidth: 0,
-            itemHeight: 18,
-            itemTextColor: '#999',
-            itemDirection: 'left-to-right',
-            itemOpacity: 1,
-            symbolSize: 18,
-            symbolShape: 'circle',
-            effects: [
-                {
-                    on: 'hover',
-                    style: {
-                        itemTextColor: '#000'
-                    }
-                }
-            ]
-        }
+    // 1. defining gradients
+    defs={[
+        // using helpers
+        // will inherit colors from current element
+        linearGradientDef('gradientA', [        //purple emerald
+            { offset: 0, color: '#9154C1' },
+            { offset: 100, color: '#68EFC1'},
+        ]),
+        linearGradientDef('gradientB', [
+            { offset: 0, color: '#f0a247' },
+            { offset: 100, color: '#f583ff' },
+        ]),
+        linearGradientDef('gradientC', [
+            { offset: 0, color: '#ed7693' },
+            { offset: 100, color: '#a78af9' },
+        ]),
+        linearGradientDef('gradientD', [
+            { offset: 0, color: '#f6ca75' },
+            { offset: 100, color: '#8af98e' },
+        ]),
+    ]}
+    // 2. defining rules to apply those gradients
+    fill={[
+        // match using object query
+        { match: { id: 'sport' },           id: 'gradientA'},
+        { match: { id: 'procrastination' }, id: 'gradientB'},
+        { match: { id: 'meditation' },      id: 'gradientC'},
+        { match: { id: 'studying' },        id: 'gradientD'},
+        
+        // match using function
+        //{ match: d => d.id === 'vue', id: 'gradientB' },
+
+        // Needs to be last on the list
+        // match all, will only affect 'elm', because once a rule match,
+        // others are skipped, so now it acts as a fallback
+        { match: '*', id: 'gradientE' },
     ]}
 />);
 }
