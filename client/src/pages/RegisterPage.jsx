@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import axios from "axios";
 
 export default function RegisterPage() {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,6 +41,13 @@ export default function RegisterPage() {
             <div className="mt-10 w-fit h-fit bg-slate-800 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-30 relative">
                 <h1 className="text-4xl font-semibold text-center mb-6">Create account</h1>
                 <form onSubmit={handleRegisterSubmit}>
+                    <div className="relative my-6">
+                        <input 
+                        value={name}
+                        onChange={ev => setName(ev.target.value)}
+                        className="placeholder-white block w-72 py-2.3 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600 peer" placeholder="Name"
+                        />
+                    </div>
                     <div className="relative my-6">
                         <input 
                         value={email}

@@ -1,7 +1,13 @@
+import React, { useEffect, useContext, useState } from "react";
+import {useLocation} from "react-router-dom";
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
+
 import Timeline from '../charts/TimelineChart';
 import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
-import {useLocation} from "react-router-dom";
+import NewUserWidget from '../newUserWidget';
+
 
 export default function MainPage() {
     const location = useLocation();
@@ -10,10 +16,39 @@ export default function MainPage() {
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
+    const [open, setOpen] = useState(true);
+    const contentStyle = { 
+        background: 'transparent', 
+        border: '0',
+        closeOnEscape: 'false',
+    };
+
+    useEffect(() => {
+        // Check if activities is null and set open to true
+        if (activities === null) {
+            setOpen(true);
+        }
+    }, [activities]); // Run this effect whenever activities changes
+
+    const handleClose = () => {
+        // Prevent closing if the condition is not met
+        if (activities != null) {
+            setOpen(false);
+        }
+    };
+
 
     const filler = userData?.login +" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
         <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5 h-full">
+            <Popup 
+                open={open} 
+                contentStyle={contentStyle}
+                closeOnDocumentClick={!open}
+                onClose={handleClose}
+            >
+                <NewUserWidget/>
+            </Popup>
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
                     <div className="items-center gap-x-7 flex flex-row my-4 w-4/12 text-sm font-bold text-gray-500">
