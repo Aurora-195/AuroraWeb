@@ -16,7 +16,7 @@ export default function MainPage() {
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const contentStyle = { 
         background: 'transparent', 
         border: '0',
