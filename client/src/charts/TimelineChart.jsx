@@ -19,26 +19,15 @@ function TimelineChart() {
         if (completedInstances.length > 0) {
           return {
             name: activity.name,
-            data: completedInstances.map((instance) => {
+            data: completedInstances.map(instance => {
               const startTime = new Date(instance.startTime);
               const endTime = new Date(instance.endTime);
-  
-              // Create a consistent date with the same year, month, and day to focus only on time
-              const consistentStartDate = new Date();
-              consistentStartDate.setHours(startTime.getHours());
-              consistentStartDate.setMinutes(startTime.getMinutes());
-              consistentStartDate.setSeconds(startTime.getSeconds());
 
-              const consistentEndDate = new Date();
-              consistentEndDate.setHours(endTime.getHours());
-              consistentEndDate.setMinutes(endTime.getMinutes());
-              consistentEndDate.setSeconds(endTime.getSeconds());
-  
               return {
-                x: startTime.toLocaleDateString(),
+                x: startTime.toISOString().split('T')[0],  // Extracting the date part
                 y: [
-                  consistentStartDate.getTime(),
-                  consistentEndDate.getTime(),
+                  Date.UTC(1970, 0, 1, startTime.getUTCHours(), startTime.getUTCMinutes()),
+                  Date.UTC(1970, 0, 1, endTime.getUTCHours(), endTime.getUTCMinutes())
                 ],
               };
             }),
@@ -46,12 +35,15 @@ function TimelineChart() {
         } else {
           return {};
         }
+
       }).filter((activity) => Object.keys(activity).length !== 0); // Remove activities without data
 
       console.log(JSON.stringify(convertedData, null, 2));
       setChartData(convertedData);
     }
   }, [activities]);
+  const { minY, maxY, tickAmount } = findMinMaxTime(activities);
+  console.log("MinTime = "+minY + "; MaxTime = " + maxY + "; ticks = " + tickAmount);
 
   const options = {
     chart: {
@@ -75,8 +67,8 @@ function TimelineChart() {
     },
     plotOptions: {
       bar: {
-        horizontal: true,
-        barHeight: '50%',
+        horizontal: false,
+        barHeight: '80%',
         rangeBarGroupRows: true,
       },
     },
@@ -89,20 +81,33 @@ function TimelineChart() {
       type: 'solid',
     },
     xaxis: {
-      type: 'datetime',
-      formatter: function (value) {
-        const date = new Date(value);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-      },
+      type: 'category',
+      labels: {
+        formatter: function (value) {
+          let date = new Date(value);
+
+          return `${date.getMonth() + 1}/${date.getDate()}`;
+        }
+      }
     },
+
     yaxis: {
       type: 'datetime',
+      min:minY,
+      max: maxY,
+      tickAmount: 7,
+      labels: {
+        formatter: function (value) {
+          let date = new Date(value);
+          return date.getUTCHours().toString().padStart(2, '0') + ':' + date.getUTCMinutes().toString().padStart(2, '0');
+        }
+      },
     },
+
     legend: {
       position: 'right',
     },
+
   };
 
   return (
@@ -111,6 +116,32 @@ function TimelineChart() {
     </div>
   );
 }
+
+function findMinMaxTime(activities) {
+  let minTime = new Date('1970-01-01T23:59:59Z').getTime(); // Set to latest possible time
+  let maxTime = new Date('1970-01-01T00:00:00Z').getTime(); // Set to earliest possible time
+
+  activities.forEach(activity => {
+    activity.instances.forEach(instance => {
+      // Extract and normalize the start and end times to a single day
+      const startTime = normalizeTime(instance.startTime);
+      const endTime = normalizeTime(instance.endTime);
+
+      // Update min and max times
+      minTime = Math.min(minTime, startTime);
+      maxTime = Math.max(maxTime, endTime);
+    });
+  });
+
+  return { minY: minTime, maxY: maxTime };
+}
+
+function normalizeTime(timeString) {
+  const time = new Date(timeString);
+  // Normalize the time to 1st Jan 1970
+  return Date.UTC(1970, 0, 1, time.getUTCHours(), time.getUTCMinutes());
+}
+
 
 export default TimelineChart;
 
