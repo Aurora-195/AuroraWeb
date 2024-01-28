@@ -6,7 +6,7 @@ import 'reactjs-popup/dist/index.css';
 import Timeline from '../charts/TimelineChart';
 import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
-import NewUserWidget from '../newUserWidget';
+import CreatActvitiesForm from '../widgets/createActivitesForm';
 
 
 export default function MainPage() {
@@ -24,16 +24,16 @@ export default function MainPage() {
     };
 
     useEffect(() => {
-        // Check if activities is null and set open to true
-        if (activities === null) {
+        // If activites list is empty, then open popup for user to create activities
+        if (activities.length === 0) {
             setOpen(true);
         }
     }, [activities]); // Run this effect whenever activities changes
 
     const handleClose = () => {
         // Prevent closing if the condition is not met
-        if (activities != null) {
-            setOpen(false);
+        if (activities.length === 0) {
+            setOpen(true);
         }
     };
 
@@ -47,7 +47,7 @@ export default function MainPage() {
                 closeOnDocumentClick={!open}
                 onClose={handleClose}
             >
-                <NewUserWidget/>
+                <CreatActvitiesForm/>
             </Popup>
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
