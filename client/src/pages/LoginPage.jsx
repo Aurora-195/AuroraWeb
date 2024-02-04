@@ -13,7 +13,7 @@ const LoginPage = () => {
 
         try {
             // Make the POST request to the API endpoint
-            const response = await axios.post('http://localhost:5000/users/login', {
+            const response = await axios.post('https://auroratime.org/users/login', {
                 login: email,
                 password: password
             });
