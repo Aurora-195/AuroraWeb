@@ -16,6 +16,8 @@ const LoginPage = () => {
             const response = await axios.post('https://auroratime.org/users/login', {
                 login: email,
                 password: password
+            }, {
+                withCredentials: true // Important for cookies, authorization headers
             });
 
             // If the response is successful, redirect to the home page

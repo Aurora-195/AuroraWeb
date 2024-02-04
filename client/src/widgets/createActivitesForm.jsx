@@ -60,7 +60,7 @@ export default function createActivitesForm() {
         ev.preventDefault(); 
 
         try {
-            const response = await axios.post('http://localhost:5000/users/createActivities', {
+            const response = await axios.post('https://auroratime.org/users/createActivities', {
                 activities: activities.map(({ name, color }) => ({ name, color })),
             });
             // console.log(response.data);

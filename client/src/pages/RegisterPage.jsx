@@ -21,9 +21,11 @@ export default function RegisterPage() {
 
         try {
             // Make the POST request to the API endpoint
-            const response = await axios.post('https://auroratime.org/users/register', {
+            const response = axios.post('https://auroratime.org/users/register', {
                 login: email,
                 password: password
+            }, {
+                withCredentials: true // Important for cookies, authorization headers
             });
 
             // If the response is successful, redirect to the login page or home page
