@@ -40,7 +40,7 @@ export default function RegisterPage() {
 
     return (
         <div className="bg-gradient-to-r from-purple-600 to-emerald-300 flex justify-center h-full text-white">
-            <div className="mt-10 w-fit h-fit bg-slate-800 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-30 relative">
+            <div className="mt-24 w-fit h-fit bg-slate-800 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-30 relative">
                 <h1 className="text-4xl font-semibold text-center mb-6">Create account</h1>
                 <form onSubmit={handleRegisterSubmit}>
                     <div className="relative my-6">

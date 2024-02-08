@@ -2,13 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
+import EditLogForm from '../widgets/editLogForm';
+
 function TimelineChart() {
   const [chartData, setChartData] = useState([]);
-  //const [dateMin, setDateMin] = useState([]);
-  //const [dateMax, setDateMax] = useState([]);
   const location = useLocation();
   const userData = location.state?.user.user;
   const activities = userData?.activities;
+
+  const [dateList, setDateList] = useState(new Map());
+
+  const contentStyle = { 
+    background: 'transparent', 
+    border: '0',
+    closeOnEscape: 'false',
+  };
+  const [openEdit, setOpenEdit] = useState(false);
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+  };
 
   useEffect(() => {
     if (activities) {
@@ -23,8 +37,14 @@ function TimelineChart() {
               const startTime = new Date(instance.startTime);
               const endTime = new Date(instance.endTime);
 
+              const strDate = startTime.toISOString().split('T')[0]
+
+              if (!dateList.has(strDate)) {
+                setDateList(prevDateList => new Map(prevDateList).set(strDate, 1));
+              }
+
               return {
-                x: startTime.toISOString().split('T')[0],  // Extracting the date part
+                x: strDate,  // Extracting the date part
                 y: [
                   Date.UTC(1970, 0, 1, startTime.getUTCHours(), startTime.getUTCMinutes()),
                   Date.UTC(1970, 0, 1, endTime.getUTCHours(), endTime.getUTCMinutes())
@@ -38,12 +58,22 @@ function TimelineChart() {
 
       }).filter((activity) => Object.keys(activity).length !== 0); // Remove activities without data
 
-      console.log(JSON.stringify(convertedData, null, 2));
       setChartData(convertedData);
     }
-  }, [activities]);
+  }, [activities, dateList]);
   const { minY, maxY, tickAmount } = findMinMaxTime(activities);
-  console.log("MinTime = "+minY + "; MaxTime = " + maxY + "; ticks = " + tickAmount);
+
+  // will only run if dateList size is changed (to avoid infinite loop)
+  useEffect(() => {
+    //console.log("Number: ", dateList.size)
+    const sortedDateList = [...dateList.entries()].sort((a, b) => new Date(a[0]) - new Date(b[0]));
+    setDateList(new Map(sortedDateList));
+  }, [dateList.size]);
+
+
+  //console.log("Date List: ", dateList)
+  //console.log(convertedData);
+  //console.log("MinTime = "+minY + "; MaxTime = " + maxY + "; ticks = " + tickAmount);
 
   const options = {
     chart: {
@@ -64,6 +94,12 @@ function TimelineChart() {
           customIcons: [],
         },
       },
+      events: {
+        dataPointSelection: function(event, chartContext, config) {
+          setOpenEdit(true)
+          console.log(config)
+        }
+      }
     },
     plotOptions: {
       bar: {
@@ -82,28 +118,21 @@ function TimelineChart() {
     },
     xaxis: {
       type: 'category',
-      labels: {
-        formatter: function (value) {
-          let date = new Date(value);
-
-          return `${date.getMonth() + 1}/${date.getDate()}`;
-        }
-      }
+      categories: Array.from(dateList.keys()),
     },
-
     yaxis: {
       type: 'datetime',
-      min:minY,
+      min: minY,
       max: maxY,
       tickAmount: 7,
       labels: {
         formatter: function (value) {
           let date = new Date(value);
           return date.getUTCHours().toString().padStart(2, '0') + ':' + date.getUTCMinutes().toString().padStart(2, '0');
-        }
+        },
+        show: false,
       },
     },
-
     legend: {
       position: 'right',
     },
@@ -112,6 +141,20 @@ function TimelineChart() {
 
   return (
     <div className='p-4'>
+      <Popup 
+      open={openEdit} 
+      contentStyle={contentStyle}
+      onClose={handleCloseEdit}
+      closeOnDocumentClick
+      >
+        <div id="parent" className="relative w-96">
+            <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseEdit}>
+                X
+            </button>
+            <EditLogForm className="z-0"/>
+        </div>
+      </Popup>
+
       <Chart options={options} series={chartData} type='rangeBar' height={250} />
     </div>
   );
@@ -145,84 +188,3 @@ function normalizeTime(timeString) {
 
 export default TimelineChart;
 
-
-/*
-series: [
-  {
-    name: 'Sport',
-    data: [
-      {
-        x: '11/1',
-        y: [
-          new Date("2023-11-01T09:00:00Z").getTime(),
-          new Date("2023-11-01T11:00:00Z").getTime()
-        ]
-      },
-    ]
-  },
-  {
-    name: 'Studying',
-    data: [
-      {
-        x: '11/2',
-        y: [
-          new Date("2023-11-01T09:00:00Z").getTime(),
-          new Date("2023-11-01T11:00:00Z").getTime()
-        ]
-      },
-      {
-        x: '11/2',
-        y: [
-          new Date("2023-11-01T12:00:00Z").getTime(),
-          new Date("2023-11-01T12:30:00Z").getTime()
-        ]
-      },
-      {
-        x: '11/3',
-        y: [
-          new Date("2023-11-01T09:00:00Z").getTime(),
-          new Date("2023-11-01T11:00:00Z").getTime()
-        ]
-      }
-    ]
-  },
-  {
-    name: 'Meditation',
-    data: [
-      {
-        x: '11/1',
-        y: [
-          new Date("2023-11-01T06:00:00Z").getTime(),
-          new Date("2023-11-01T06:30:00Z").getTime()
-        ]
-      },
-      {
-        x: '11/2',
-        y: [
-          new Date("2023-11-01T20:00:00Z").getTime(),
-          new Date("2023-11-01T24:00:00Z").getTime()
-        ]
-      },
-      {
-        x: '11/3',
-        y: [
-          new Date("2023-11-01T04:00:00Z").getTime(),
-          new Date("2023-11-01T06:45:00Z").getTime()
-        ]
-      }
-    ]
-  },
-  {
-    name: 'Procrastination',
-    data: [
-      {
-        x: '11/1',
-        y: [
-          new Date("2023-11-01T14:00:00Z").getTime(),
-          new Date("2023-11-01T16:10:00Z").getTime()
-        ]
-      }
-    ]
-  },
-],
-*/
