@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { linearGradientDef } from '@nivo/core'
 
 export default function PieGraph({data}) {
-    if (data===undefined) return;
+    if (data === undefined) return;
 
     const pieData = useMemo(() => {
         // Calculate total duration for each activity

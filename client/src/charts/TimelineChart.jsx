@@ -6,11 +6,10 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import EditLogForm from '../widgets/editLogForm';
 
-function TimelineChart() {
+function TimelineChart({data}) {
+  if (data === undefined) return;
+
   const [chartData, setChartData] = useState([]);
-  const location = useLocation();
-  const userData = location.state?.user.user;
-  const activities = userData?.activities;
 
   const [dateList, setDateList] = useState(new Map());
 
@@ -25,8 +24,8 @@ function TimelineChart() {
   };
 
   useEffect(() => {
-    if (activities) {
-      const convertedData = activities.map((activity) => {
+    if (data) {
+      const convertedData = data.map((activity) => {
         // Check if there are instances and at least one has a status of "completed"
         const completedInstances = activity.instances.filter((instance) => instance.status === "completed");
 
@@ -56,12 +55,12 @@ function TimelineChart() {
           return {};
         }
 
-      }).filter((activity) => Object.keys(activity).length !== 0); // Remove activities without data
+      }).filter((activity) => Object.keys(activity).length !== 0); // Remove data without data
 
       setChartData(convertedData);
     }
-  }, [activities, dateList]);
-  const { minY, maxY, tickAmount } = findMinMaxTime(activities);
+  }, [data, dateList]);
+  const { minY, maxY, tickAmount } = findMinMaxTime(data);
 
   // will only run if dateList size is changed (to avoid infinite loop)
   useEffect(() => {
@@ -160,11 +159,11 @@ function TimelineChart() {
   );
 }
 
-function findMinMaxTime(activities) {
+function findMinMaxTime(data) {
   let minTime = new Date('1970-01-01T23:59:59Z').getTime(); // Set to latest possible time
   let maxTime = new Date('1970-01-01T00:00:00Z').getTime(); // Set to earliest possible time
 
-  activities.forEach(activity => {
+  data.forEach(activity => {
     activity.instances.forEach(instance => {
       // Extract and normalize the start and end times to a single day
       const startTime = normalizeTime(instance.startTime);

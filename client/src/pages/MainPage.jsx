@@ -7,17 +7,18 @@ import Timeline from '../charts/TimelineChart';
 import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
 import CreatActvitiesForm from '../widgets/createActivitesForm';
-import AddLogForm from '../widgets/addLogForm';
 
 export default function MainPage() {
     const location = useLocation();
     const userData = location.state?.user.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
+    
+    // contains data of activities, use this to get JSON for adding and editing logs
     const activities = userData?.activities;
+    
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
     const [openAct, setOpenAct] = useState(false);
-    const [openLog, setOpenLog] = useState(false);
 
     const contentStyle = { 
         background: 'transparent', 
@@ -39,10 +40,6 @@ export default function MainPage() {
         }
     };
 
-    const handleCloseLog = () => {
-        setOpenLog(false);
-    };
-
 
     const filler = userData?.login +" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
@@ -54,19 +51,6 @@ export default function MainPage() {
                 onClose={handleCloseAct}
             >
                 <CreatActvitiesForm/>
-            </Popup>
-            <Popup 
-                open={openLog} 
-                contentStyle={contentStyle}
-                onClose={handleCloseLog}
-                closeOnDocumentClick
-            >
-                <div id="parent" className="relative w-96">
-                    <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseLog}>
-                        X
-                    </button>
-                    <AddLogForm className="z-0"/>
-                </div>
             </Popup>
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
@@ -85,13 +69,10 @@ export default function MainPage() {
                             </div>
                         </div>
                         */}
-                        <button className="w-24 mb-4 text-[18px] mt-1 rounded-full bg-emerald-400 text-white hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300" onClick={() => setOpenLog(true)}>
-                            Add log
-                        </button>
                     </div>
                     <div className="flex flex-col gap-y-2 w-full">
                         <div className="flex-initial border-2 rounded-md h-fill">
-                            <Timeline/>
+                            <Timeline data={activities}/>
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-row gap-x-2">

@@ -12,7 +12,7 @@ export default function IndexPage() {
     return (
       <div className="bg-gradient-to-br from-[#1B1927] to-[#102C1D]">
         <header className="flex items-center justify-center bg-fixed bg-parallax bg-cover h-screen">
-          <div className="flex flex-col font-extrabold text-white h-96 -mt-10">
+          <div className="flex flex-col font-extrabold text-white -mt-48 mx-auto max-w-[40rem]">
             <h1 className="text-8xl">Aurora</h1>
             <h1 className="text-4xl">a time management ecosystem</h1>
           </div>
@@ -36,7 +36,7 @@ export default function IndexPage() {
             <p>{appDescription}</p>
           </div>
           <div className="justify-end">
-          <img src={webPic} className="object-cover object-[50%] drop-shadow-[0_25px_25px_rgba(0,255,255,0.25)]"></img>
+            <img src={webPic} className="max-w-[20rem] object-cover object-[50%] drop-shadow-[0_25px_25px_rgba(0,255,255,0.25)]"></img>
           </div>
         </div>
       </div>
