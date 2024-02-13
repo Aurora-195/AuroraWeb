@@ -62,6 +62,7 @@ export default function createActivitesForm() {
         try {
             const response = await axios.post('https://auroratime.org/users/createActivities', {
                 activities: activities.map(({ name, color }) => ({ name, color })),
+                id: userData?.id,
             });
             // console.log(response.data);
     

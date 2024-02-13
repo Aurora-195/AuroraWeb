@@ -13,6 +13,7 @@ export default function MainPage() {
     const location = useLocation();
     const userData = location.state?.user.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
     const activities = userData?.activities;
+    const userId = userData?.id;
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
