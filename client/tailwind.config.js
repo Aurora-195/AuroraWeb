@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'parallax': 'url(./src/assets/freepikAurora1.jpg)',
+        'parallax1': 'url(./src/assets/webPic1.png)',
+      },
+    },
   },
   plugins: [],
 }

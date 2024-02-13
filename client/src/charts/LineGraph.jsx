@@ -2,7 +2,7 @@ import { ResponsiveLine } from '@nivo/line'
 import { linearGradientDef } from '@nivo/core'
 
 export default function LineGraph({data}) {
-  if (data===undefined) return;
+  if (data === undefined) return;
   
   const convertedData = data.map(activity => {
     return {

@@ -8,18 +8,20 @@ import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
 import CreatActvitiesForm from '../widgets/createActivitesForm';
 
-
 export default function MainPage() {
     const location = useLocation();
     const userData = location.state?.user.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
+    
+    // contains data of activities, use this to get JSON for adding and editing logs
     const activities = userData?.activities;
     const userId = userData?.id;
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
 
-    const [open, setOpen] = useState(false);
-    const contentStyle = { 
-        background: 'transparent', 
+    const [openAct, setOpenAct] = useState(false);
+
+    const contentStyle = {
+        background: 'transparent',
         border: '0',
         closeOnEscape: 'false',
     };
@@ -27,14 +29,14 @@ export default function MainPage() {
     useEffect(() => {
         // If activites list is empty, then open popup for user to create activities
         if (activities.length === 0) {
-            setOpen(true);
+            setOpenAct(true);
         }
     }, [activities]); // Run this effect whenever activities changes
 
-    const handleClose = () => {
+    const handleCloseAct = () => {
         // Prevent closing if the condition is not met
         if (activities.length === 0) {
-            setOpen(true);
+            setOpenAct(true);
         }
     };
 
@@ -42,20 +44,22 @@ export default function MainPage() {
     const filler = userData?.login +" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
         <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5 h-full">
-            <Popup 
-                open={open} 
+            <Popup
+                open={openAct}
                 contentStyle={contentStyle}
-                closeOnDocumentClick={!open}
-                onClose={handleClose}
+                closeOnDocumentClick={!openAct}
+                onClose={handleCloseAct}
             >
                 <CreatActvitiesForm/>
             </Popup>
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
                     <div className="items-center gap-x-7 flex flex-row my-4 w-4/12 text-sm font-bold text-gray-500">
+                        {/*
                         <h1 className="flex-1 hover:underline">Day</h1>
                         <h1 className="flex-1 hover:underline">Week</h1>
                         <h1 className="flex-1 hover:underline">Month</h1>
+
                         <div className="ml-1 flex-1">
                             <div className="flex flex-row items-center gap-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -64,10 +68,11 @@ export default function MainPage() {
                                 <h1 className="font-normal">MM/DD/YY</h1>
                             </div>
                         </div>
+                        */}
                     </div>
                     <div className="flex flex-col gap-y-2 w-full">
                         <div className="flex-initial border-2 rounded-md h-fill">
-                            <Timeline/>
+                            <Timeline data={activities}/>
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-row gap-x-2">
@@ -83,6 +88,7 @@ export default function MainPage() {
                 </div>
             </div>
 
+            {/*
             <div className="flex-1 w-full text-white items-center justify-center">
                 <div className="ml-4 mt-[3.3em] w-full h-[600px] p-6 overflow-y-auto rounded-lg bg-gradient-to-br from-purple-600 to-emerald-700">
                     <h2 className="text-xl font-bold">Analysis</h2>
@@ -95,6 +101,7 @@ export default function MainPage() {
                     </div>
                 </div>
             </div>
+            */}
         </div>
     );
 }
