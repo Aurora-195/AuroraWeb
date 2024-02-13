@@ -1,7 +1,10 @@
+
 import {Link, useActionData, useNavigate, useLocation} from "react-router-dom";
 import { useContext, useState } from "react";
 import axios from "axios";
 import ColorPicker from './colorPicker';
+
+
 
 function ActivityInput({ activity, color, onActivityChange, onColorChange }) {  
     return (
@@ -19,10 +22,12 @@ function ActivityInput({ activity, color, onActivityChange, onColorChange }) {
 }
 
   
-export default function createActivitesForm() {
+export default function createActivitesForm({ onUpdateActivitiesAndClosePopup }) {
     
     const location = useLocation();
-    const userData = location.state?.user.user;
+    const userData = location.state?.user;
+    const userId = userData?.id;
+
         
     // Grab username
     const email = userData?.login
@@ -60,12 +65,13 @@ export default function createActivitesForm() {
         ev.preventDefault(); 
 
         try {
-            const response = await axios.post('https://auroratime.org/users/createActivities', {
-                activities: activities.map(({ name, color }) => ({ name, color })),
-                id: userData?.id,
+            const response = await axios.post(`https://auroratime.org/users/${userId}/createActivities`, {
+                activities: activities.map(({ name, color }) => ({ name, color }))
             });
             // console.log(response.data);
-    
+            if (response.status === 201) {
+                onUpdateActivitiesAndClosePopup(response.data.activities);
+            }
         } catch (error) {
             console.error("Error creating activities for the user:", error.response ? error.response.data : error.message);
             alert("Error creating activities for the user.");

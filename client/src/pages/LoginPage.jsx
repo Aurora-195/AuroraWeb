@@ -22,7 +22,7 @@ const LoginPage = () => {
 
             // If the response is successful, redirect to the home page
             // console.log(response.data);
-            navigate('/main', { state: { user: response.data } });
+            navigate('/main', { state: { user: response.data.user } });
         } catch (error) {
             // If there's an error in the request, log it or display it to the user
             console.error("Error with login:", error.response ? error.response.data : error.message);

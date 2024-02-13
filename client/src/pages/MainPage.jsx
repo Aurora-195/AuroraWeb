@@ -1,3 +1,4 @@
+
 import React, { useEffect, useContext, useState } from "react";
 import {useLocation} from "react-router-dom";
 import Popup from 'reactjs-popup';
@@ -10,10 +11,10 @@ import CreatActvitiesForm from '../widgets/createActivitesForm';
 
 export default function MainPage() {
     const location = useLocation();
-    const userData = location.state?.user.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
+    const userData = location.state?.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
     
     // contains data of activities, use this to get JSON for adding and editing logs
-    const activities = userData?.activities;
+    const [activities, setActivities] = useState(userData?.activities || []);
     const userId = userData?.id;
     console.log(userData);
     console.log(JSON.stringify(userData, null, 2));
@@ -27,11 +28,8 @@ export default function MainPage() {
     };
 
     useEffect(() => {
-        // If activites list is empty, then open popup for user to create activities
-        if (activities.length === 0) {
-            setOpenAct(true);
-        }
-    }, [activities]); // Run this effect whenever activities changes
+        setActivities(userData?.activities || []);
+    }, [userData]);
 
     const handleCloseAct = () => {
         // Prevent closing if the condition is not met
@@ -39,19 +37,22 @@ export default function MainPage() {
             setOpenAct(true);
         }
     };
-
+    const updateActivitiesAndClosePopup = (newActivities) => {
+        setActivities(newActivities);
+        setOpenAct(false); // Close the popup
+    };
 
     const filler = userData?.login +" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolordolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
     return (
         <div className="flex flex-row mx-12 gap-x-5 pt-5 px-5 h-full">
-            <Popup
-                open={openAct}
-                contentStyle={contentStyle}
-                closeOnDocumentClick={!openAct}
-                onClose={handleCloseAct}
-            >
-                <CreatActvitiesForm/>
+            <Popup 
+			open={openAct} 
+			contentStyle={contentStyle} 
+			closeOnDocumentClick={!openAct} 
+			onClose={handleCloseAct}>
+                <createActivitiesForm onUpdateActivitiesAndClosePopup={updateActivitiesAndClosePopup} />
             </Popup>
+
             <div className="flex-initial w-8/12">
                 <div className="flex-1 h-full">
                     <div className="items-center gap-x-7 flex flex-row my-4 w-4/12 text-sm font-bold text-gray-500">

@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
         try {
             // Make the POST request to the API endpoint
-            const response = axios.post('https://auroratime.org/users/register', {
+            const response = await axios.post('https://auroratime.org/users/register', {
                 login: email,
                 password: password
             }, {
@@ -29,8 +29,8 @@ export default function RegisterPage() {
             });
 
             // If the response is successful, redirect to the login page or home page
-            // console.log(response.data);
-            navigate('/main', { state: { user: response.data } });
+            console.log(response.data);
+            navigate('/main', { state: { user: response.data.user } });
         } catch (error) {
             // If there's an error in the request, log it or display it to the user
             console.error("Error registering the user:", error.response ? error.response.data : error.message);
