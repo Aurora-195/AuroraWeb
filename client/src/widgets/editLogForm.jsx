@@ -46,7 +46,7 @@ const css = `
   }
 `;
 
-export default function editLogForm() {
+export default function editLogForm({activityNames}) {
     const [activity, setActivity] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -55,7 +55,7 @@ export default function editLogForm() {
 
     let footer = <p>Please pick a day.</p>;
     if (selected) {
-      footer = <p>You picked {format(selected, 'PP')}.</p>;
+      footer = <p className="text-[#09eb81]">You picked {format(selected, 'PP')}.</p>;
     }
 
     async function handleAddLog(ev) {
@@ -72,11 +72,14 @@ export default function editLogForm() {
         <div className="mt-5 flex flex-col content-center w-full h-fit bg-slate-800 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-50 relative text-white">
             <h1>Previous Activity</h1>
             <form onSubmit={handleAddLog} className="">
-                <input value={activity}
-                    onChange={(ev) => setActivity(ev.target.value)}
-                    className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600 peer" 
-                    placeholder="New Activity">
-                </input>
+                <select 
+                onChange={(ev) => setActivity(ev.target.value)}
+                className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600 peer">
+                  <option value={activity}>  {activityNames[0]}</option>
+                  <option value={activity}>  {activityNames[1]}</option>
+                  <option value={activity}>  {activityNames[2]}</option>
+                  <option value={activity}>  {activityNames[3]}</option>
+                </select>
                 <div className="flex justify-center items-center flex-col">
                   <div className="py-2">
                       <style>{css}</style>

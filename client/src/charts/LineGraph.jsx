@@ -32,7 +32,7 @@ export default function LineGraph({data}) {
     return durationInHours;
   }
   
-  console.log(convertedData);
+  //console.log(convertedData);
 
 return (<ResponsiveLine
   animate

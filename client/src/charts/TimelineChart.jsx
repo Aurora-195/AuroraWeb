@@ -6,7 +6,7 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import EditLogForm from '../widgets/editLogForm';
 
-function TimelineChart({data}) {
+function TimelineChart({data, activityNames}) {
   if (data === undefined) return;
 
   const [chartData, setChartData] = useState([]);
@@ -88,7 +88,7 @@ function TimelineChart({data}) {
           zoom: true,
           zoomin: true,
           zoomout: true,
-          pan: false,
+          pan: true,
           reset: true | '<img src="/static/icons/reset.png" width="20">',
           customIcons: [],
         },
@@ -129,17 +129,17 @@ function TimelineChart({data}) {
           let date = new Date(value);
           return date.getUTCHours().toString().padStart(2, '0') + ':' + date.getUTCMinutes().toString().padStart(2, '0');
         },
-        show: false,
+        show: true,
       },
     },
     legend: {
-      position: 'right',
+      position: 'left',
     },
 
   };
 
   return (
-    <div className='p-4'>
+    <div>
       <Popup 
       open={openEdit} 
       contentStyle={contentStyle}
@@ -150,11 +150,12 @@ function TimelineChart({data}) {
             <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseEdit}>
                 X
             </button>
-            <EditLogForm className="z-0"/>
+            <EditLogForm className="z-0" activityNames={activityNames}/>
         </div>
       </Popup>
 
       <Chart options={options} series={chartData} type='rangeBar' height={250} />
+      
     </div>
   );
 }

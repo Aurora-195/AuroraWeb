@@ -2,28 +2,12 @@ import {Outlet} from "react-router-dom";
 import {Link, useLocation} from "react-router-dom";
 import React, { useEffect, useContext, useState } from 'react';
 
-import AddLogForm from './widgets/addLogForm';
-import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css';
-
 export default function Layout() {
     const [isExpanded, setExpanded] = useState(true)
 
     const location = useLocation();
-    const userData = location.state?.user.user;
-    const isLoggedIn = userData?.login;
-
-    const [openLog, setOpenLog] = useState(false);
-
-    const contentStyle = { 
-        background: 'transparent', 
-        border: '0',
-        closeOnEscape: 'false',
-    };
-
-    const handleCloseLog = () => {
-        setOpenLog(false);
-    };
+    const userData = location.state?.user;
+    const isLoggedIn = userData?.id;
 
     return (
         <div className="h-screen">
@@ -43,31 +27,7 @@ export default function Layout() {
                     ) }
                 </button>
                 <h1 className="text-4xl font-bold text-white">Aurora</h1>
-                {
-                isLoggedIn
-                ?
-                <div className="absolute left-56">
-                    <button className="w-24 text-[18px] rounded-full bg-emerald-400 font-semibold text-white hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300" onClick={() => setOpenLog(true)}>
-                        Add log
-                    </button>
-                </div>
-                :
-                null
-                }
             </header>
-            <Popup 
-            open={openLog} 
-            contentStyle={contentStyle}
-            onClose={handleCloseLog}
-            closeOnDocumentClick
-            >
-                <div id="parent" className="relative w-96">
-                    <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseLog}>
-                        X
-                    </button>
-                    <AddLogForm className="z-0"/>
-                </div>
-            </Popup>
             <div className="flex flex-row">
                 <div className={`transition-all h-screen ${isExpanded ? "w-0" : "w-56"} flex flex-col bg-[#13092c] text-white font-bold`}>
                 </div>
