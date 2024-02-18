@@ -48,6 +48,12 @@ const css = `
 `;
 
 export default function addLogForm({data, activityNames, onUpdateActivitiesAndClosePopup}) {
+    // Stuff for userId for the POST request
+    const location = useLocation();
+    const userData = location.state?.user;
+    const userId = userData?.id;
+    //
+
     const [activityName, setActivityName] = useState(activityNames[0]);
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -122,6 +128,8 @@ export default function addLogForm({data, activityNames, onUpdateActivitiesAndCl
               const updatedActivities = [...activities];
               updatedActivities[index].instances.push(newLog);
               setActivities(updatedActivities);
+
+
             }
             else
             {
@@ -129,7 +137,15 @@ export default function addLogForm({data, activityNames, onUpdateActivitiesAndCl
             }
           });
 
-          console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
+            console.log(`Sending log for activity: ${newLog} with data:`, newLog);
+
+            const response = await axios.post(`https://auroratime.org/users/${userId}`, {
+                activityInstance: newLog,
+                name: activityName,
+
+        });
+
+        console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
       } catch (error) {
           console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
           alert("Error adding log for the user.");

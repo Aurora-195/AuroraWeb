@@ -67,7 +67,7 @@ export default function createActivitesForm({ onUpdateActivitiesAndClosePopup })
 
         try {
 
-            const response = await axios.post(`https://auroratime.org/users/${userId}/createActivities`, {
+            const response = await axios.post(`https://auroratime.org/${userId}/createActivities`, {
                 activities: activities.map(({ name, color }) => ({ name, color })),
 
             });
