@@ -1,34 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import Chart from 'react-apexcharts';
-
-import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import EditLogForm from '../widgets/editLogForm';
 
-function TimelineChart({data, activityNames}) {
+function TimelineChart({data, handleSelectedAct}) {
   if (data === undefined) return;
 
+  // usable data for Timeline chart
   const [chartData, setChartData] = useState([]);
 
+  // a map of dates (no dupes) that is used for x-axis (categories)
   const [dateList, setDateList] = useState(new Map());
-
-  const contentStyle = { 
-    background: 'transparent', 
-    border: '0',
-    closeOnEscape: 'false',
-  };
-  const [openEdit, setOpenEdit] = useState(false);
-  const handleCloseEdit = () => {
-    setOpenEdit(false);
-  };
-
+  
+  // if data changes, then auto update into usable data for Timeline chart
   useEffect(() => {
     if (data) {
       const convertedData = data.map((activity) => {
-        // Check if there are instances and at least one has a status of "completed"
+        // grab completed instances from activity data
         const completedInstances = activity.instances.filter((instance) => instance.status === "completed");
 
+        // if the map (completed instances) is not empty, then return usable data, else return nothing
         if (completedInstances.length > 0) {
           return {
             name: activity.name,
@@ -36,14 +26,17 @@ function TimelineChart({data, activityNames}) {
               const startTime = new Date(instance.startTime);
               const endTime = new Date(instance.endTime);
 
-              const strDate = startTime.toISOString().split('T')[0]
+              const dateStr = startTime.toISOString().split('T')[0];
 
-              if (!dateList.has(strDate)) {
-                setDateList(prevDateList => new Map(prevDateList).set(strDate, 1));
+              if (!dateList.has(dateStr)) {
+                setDateList(prevDateList => new Map(prevDateList).set(dateStr, 1));
               }
 
               return {
-                x: strDate,  // Extracting the date part
+                // YYYY-MM-DD
+                x: dateStr, 
+
+                // Day, 31 Dec 1899 00:00:00 GMT
                 y: [
                   Date.UTC(1970, 0, 1, startTime.getUTCHours(), startTime.getUTCMinutes()),
                   Date.UTC(1970, 0, 1, endTime.getUTCHours(), endTime.getUTCMinutes())
@@ -55,14 +48,14 @@ function TimelineChart({data, activityNames}) {
           return {};
         }
 
-      }).filter((activity) => Object.keys(activity).length !== 0); // Remove data without data
+      }).filter((activity) => Object.keys(activity).length !== 0); // filter out activites that have no instances/recordings
 
       setChartData(convertedData);
     }
   }, [data, dateList]);
   const { minY, maxY, tickAmount } = findMinMaxTime(data);
 
-  // will only run if dateList size is changed (to avoid infinite loop)
+  // auto sort date list if new dates are added to dateList or if dates are removed
   useEffect(() => {
     //console.log("Number: ", dateList.size)
     const sortedDateList = [...dateList.entries()].sort((a, b) => new Date(a[0]) - new Date(b[0]));
@@ -70,8 +63,8 @@ function TimelineChart({data, activityNames}) {
   }, [dateList.size]);
 
 
-  //console.log("Date List: ", dateList)
-  //console.log(convertedData);
+  //console.log("Date List: ", Array.from(dateList.keys()))
+  //console.log(JSON.stringify(chartData, null, 2));
   //console.log("MinTime = "+minY + "; MaxTime = " + maxY + "; ticks = " + tickAmount);
 
   const options = {
@@ -94,17 +87,25 @@ function TimelineChart({data, activityNames}) {
         },
       },
       events: {
+        // `seriesIndex` and `dataPointIndex`
         dataPointSelection: function(event, chartContext, config) {
-          setOpenEdit(true)
-          console.log(config)
+          //console.log(config.w.config);
+          handleSelectedAct({
+              'name':       config.w.config.series[config.seriesIndex].name,
+              'date':       config.w.config.series[config.seriesIndex].data[config.dataPointIndex].x,
+              'startTime':  config.w.config.series[config.seriesIndex].data[config.dataPointIndex].y[0],
+              'endTime':    config.w.config.series[config.seriesIndex].data[config.dataPointIndex].y[1],
+          });
         }
       }
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        barHeight: '80%',
-        rangeBarGroupRows: true,
+        columnWidth: '10%',
+        rangeBarGroupRows: true,  // stacks logs of same date into one column
+        //distributed: true,
+        //rangeBarOverlap: true,
       },
     },
     colors: [
@@ -116,14 +117,17 @@ function TimelineChart({data, activityNames}) {
       type: 'solid',
     },
     xaxis: {
-      type: 'category',
+      tickPlacement: 'between',
+      //tickAmount: 30,
+      type: 'categories',
       categories: Array.from(dateList.keys()),
+      //type: 'datetime',
     },
     yaxis: {
       type: 'datetime',
       min: minY,
       max: maxY,
-      tickAmount: 7,
+      tickAmount: 10,
       labels: {
         formatter: function (value) {
           let date = new Date(value);
@@ -140,37 +144,22 @@ function TimelineChart({data, activityNames}) {
 
   return (
     <div>
-      <Popup 
-      open={openEdit} 
-      contentStyle={contentStyle}
-      onClose={handleCloseEdit}
-      closeOnDocumentClick
-      >
-        <div id="parent" className="relative w-96">
-            <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseEdit}>
-                X
-            </button>
-            <EditLogForm className="z-0" activityNames={activityNames}/>
-        </div>
-      </Popup>
-
-      <Chart options={options} series={chartData} type='rangeBar' height={250} />
-      
+      <Chart options={options} series={chartData} type='rangeBar' height={250} />      
     </div>
   );
 }
 
 function findMinMaxTime(data) {
-  let minTime = new Date('1970-01-01T23:59:59Z').getTime(); // Set to latest possible time
-  let maxTime = new Date('1970-01-01T00:00:00Z').getTime(); // Set to earliest possible time
+  let minTime = new Date('1970-01-01T23:59:59Z').getTime(); // set to latest possible time
+  let maxTime = new Date('1970-01-01T00:00:00Z').getTime(); // set to earliest possible time
 
   data.forEach(activity => {
     activity.instances.forEach(instance => {
-      // Extract and normalize the start and end times to a single day
+      // extract and normalize the start and end times to a single day
       const startTime = normalizeTime(instance.startTime);
       const endTime = normalizeTime(instance.endTime);
 
-      // Update min and max times
+      // update min and max times
       minTime = Math.min(minTime, startTime);
       maxTime = Math.max(maxTime, endTime);
     });
@@ -179,9 +168,9 @@ function findMinMaxTime(data) {
   return { minY: minTime, maxY: maxTime };
 }
 
+// normalize the time to a set day for consistent y-axis data 
 function normalizeTime(timeString) {
   const time = new Date(timeString);
-  // Normalize the time to 1st Jan 1970
   return Date.UTC(1970, 0, 1, time.getUTCHours(), time.getUTCMinutes());
 }
 

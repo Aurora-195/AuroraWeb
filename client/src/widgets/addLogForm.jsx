@@ -1,10 +1,9 @@
 import {Link, useActionData, useNavigate, useLocation} from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { format } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { useEffect } from "react";
   
 const css = `
   .my-selected:not([disabled]) { 
@@ -47,7 +46,7 @@ const css = `
   }
 `;
 
-export default function addLogForm({data, activityNames, onUpdateActivitiesAndClosePopup}) {
+export default function addLogForm({data, activityNames, updateActivities}) {
     // Stuff for userId for the POST request
     const location = useLocation();
     const userData = location.state?.user;
@@ -78,6 +77,13 @@ export default function addLogForm({data, activityNames, onUpdateActivitiesAndCl
       }
     }, [activityName, startTime, endTime, selected]);
 
+    useEffect(() => {
+      setActivities(data);
+    }, [data]);
+
+    // -----------------------------
+    // ------ DATA FORMATTING ------
+    // -----------------------------
     function formatDate(dateStr) {
       const date = new Date(dateStr);
       const year = date.getFullYear(); 
@@ -97,18 +103,19 @@ export default function addLogForm({data, activityNames, onUpdateActivitiesAndCl
       return `${dateStr}T${hours}:${minutes}:${seconds}Z`;
     }
 
-    // find activity in data
-    // insert new data inside activity instance
-    // procrastination  ||  Tue Feb 27 2024 00:00:00 GMT-0800 (Pacific Standard Time)   ||  06:43  ||  20:45
-    //"startTime":  "2023-10-05T15:00:00Z",
-    //"endTime":    "2023-10-05T16:00:00Z",
-    //"status":     "completed"
+    // ---------------------
+    // ------ ADD LOG ------
+    // ---------------------
+    // insert new instance inside activity data
     async function handleAddLog(ev) {
         ev.preventDefault();
 
         //console.log("Data: ", activtitiesJson);
         //console.log("New log: ", activity," || ", selected, "  || ", startTime, " || ", endTime);
 
+        // data from form submission: 
+        //           procrastination  ||  Tue Feb 27 2024 00:00:00 GMT-0800 (Pacific Standard Time)   ||  06:43  ||  20:45
+        // format needs to be this to add to activities data: "2023-10-05T16:00:00Z" (startTime and endTime), completed
         const dateFormatted       = formatDate(selected);
         const startTimeFormatted  = formatDateTime(dateFormatted, startTime);
         const endTimeFormatted    = formatDateTime(dateFormatted, endTime);
@@ -121,15 +128,14 @@ export default function addLogForm({data, activityNames, onUpdateActivitiesAndCl
           status: "completed",
         }
 
+        // try to find activity's instance map through activity name and add new instance/log there
         try {
           let index = 0;
           activities.forEach((activity) => {
             if (activity.name === activityName) {
               const updatedActivities = [...activities];
               updatedActivities[index].instances.push(newLog);
-              setActivities(updatedActivities);
-
-
+              updateActivities(updatedActivities);
             }
             else
             {

@@ -8,14 +8,18 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    const [isError, setError] = useState(false); 
+
     const navigate = useNavigate();
 
     async function handleRegisterSubmit(ev) {
         ev.preventDefault(); // Prevent the default form submission
+        setError(false);
 
         // Check if passwords match
         if(password !== confirmPassword) {
             alert("Passwords do not match!");
+            setError(true);
             return;
         }
 
@@ -34,7 +38,8 @@ export default function RegisterPage() {
         } catch (error) {
             // If there's an error in the request, log it or display it to the user
             console.error("Error registering the user:", error.response ? error.response.data : error.message);
-            alert("Error registering the user.");
+            alert("Error registering.");
+            setError(true);
         }
     }
 
@@ -76,6 +81,15 @@ export default function RegisterPage() {
                     </div>
                     
                     <button className="w-full mb-4 text-[18px] mt-1 rounded-full bg-white text-purple-500 hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300"type="submit">Register</button>
+                    {
+                        isError 
+                        ?
+                        <div className="text-red-300 font-bold flex justify-center">
+                            *Error registering, please try again*
+                        </div>
+                        :
+                        null
+                    }
                     
                     <div className="flex justify-center">
                         <span className="m-4">Have an Account? <Link className="hover:text-purple-100 hover:underline" to='/login'>Login</Link></span>

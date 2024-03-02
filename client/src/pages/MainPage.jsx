@@ -9,6 +9,7 @@ import Pie from '../charts/PieGraph';
 import Line from '../charts/LineGraph';
 import CreateActivitiesForm from '../widgets/createActivitesForm';
 import AddLogForm from '../widgets/addLogForm';
+import EditLogForm from '../widgets/editLogForm';
 
 export default function MainPage() {
     const location = useLocation();
@@ -16,13 +17,17 @@ export default function MainPage() {
     
     // contains data of activities, use this to get JSON for adding and editing logs
     const [activities, setActivities] = useState(userData?.activities || []);
-    const [activityNames] = useState(getActivityNames(userData?.activities) || []);
-
-    console.log(userData);
-    console.log(JSON.stringify(userData, null, 2));
 
     const [openAct, setOpenAct] = useState(false);
     const [openLog, setOpenLog] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+
+    const [selectedAct, setSelectedAct] = useState('');
+
+    // function for timeline chart where it needs to send the data of the bar that the user clicked on to mainpage for edit form
+    const handleSelectedAct = (data) => {
+        setSelectedAct(data);
+    };
 
     const contentStyle = {
         background: 'transparent',
@@ -30,23 +35,58 @@ export default function MainPage() {
         closeOnEscape: 'false',
     };
 
+    // mainly for new accounts that require selecting 4 activities 
     useEffect(() => {
         setActivities(userData?.activities || []);
         handleCloseAct();
         //console.log("Activity Names: ", activityNames);
     }, [userData]);
 
+    // if the activities change, auto close log (assuming user just submitted form for adding/editing/deleting log)
+    useEffect(() => {
+        setOpenAct(false);
+        setOpenLog(false);
+        setOpenEdit(false);
+
+        console.log(userData);
+        console.log(JSON.stringify(userData, null, 2));
+    }, [activities]);
+
+    // if selectedAct is not empty (meaning user clicked on a bar in timeline), then open edit form
+    useEffect(() => {
+        let mapLength = Object.keys(selectedAct).length;
+        if(mapLength == 0)  {setOpenEdit(false);}
+        else                {setOpenEdit(true);}
+    }, [selectedAct]);
+
+    // open activity creation form only if activities is empty
     const handleCloseAct = () => {
+        if (activities == undefined) {return}
+
         // Prevent closing if the condition is not met
         if (activities.length === 0) {
             setOpenAct(true);
         }
     };
 
+    const handleCloseLog = () => {
+        setOpenLog(false);
+    };
+
+    const handleCloseEdit = () => {
+        setOpenEdit(false);
+      };
+
+    // use this function in classes that require updating activities map
+    const updateActivities = (newActivities) => {
+        setActivities(newActivities);
+    };
+
+
     function getActivityNames(activities) {
-        if (activities.length === 0) {
-            return;
-        }
+        if (activities == undefined) {return;}
+
+        if (activities.length === 0) {return;}
 
         const map = new Map();
 
@@ -59,15 +99,6 @@ export default function MainPage() {
         return arr;
     }
 
-    const handleCloseLog = () => {
-        setOpenLog(false);
-    };
-
-    const updateActivitiesAndClosePopup = (newActivities) => {
-        setActivities(newActivities);
-        setOpenAct(false); // Close the popup
-    };
-
     return (
         <div className="mx-12 gap-x-5 pt-5 px-5 h-full">
             <Popup 
@@ -75,7 +106,7 @@ export default function MainPage() {
 			contentStyle={contentStyle} 
 			closeOnDocumentClick={!openAct} 
 			onClose={handleCloseAct}>
-                <CreateActivitiesForm onUpdateActivitiesAndClosePopup={updateActivitiesAndClosePopup} />
+                <CreateActivitiesForm updateActivities={updateActivities} />
             </Popup>
 
             <Popup 
@@ -88,7 +119,23 @@ export default function MainPage() {
                     <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseLog}>
                         X
                     </button>
-                    <AddLogForm className="z-0" data={activities} activityNames={activityNames} onUpdateActivitiesAndClosePopup={updateActivitiesAndClosePopup}/>
+                    <AddLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} updateActivities={updateActivities}/>
+                </div>
+            </Popup>
+
+            <Popup 
+            open={openEdit} 
+            contentStyle={contentStyle}
+            onClose={handleCloseEdit}
+            closeOnDocumentClick
+            >
+                <div id="parent" className="relative w-96">
+                    <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseEdit}>
+                        X
+                    </button>
+                    <EditLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} 
+                    selectedAct={selectedAct} updateActivities={updateActivities}
+                    />
                 </div>
             </Popup>
 
@@ -115,7 +162,7 @@ export default function MainPage() {
                             Add log
                         </button>
                     </div>
-                    <Timeline data={activities} activityNames={activityNames}/>
+                    <Timeline data={activities} handleSelectedAct={handleSelectedAct}/>
                 </div>
                 <div className="col-span-3">
                     <div className="grid grid-cols-3 gap-2">

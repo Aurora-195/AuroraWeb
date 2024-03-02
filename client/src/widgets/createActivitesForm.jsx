@@ -1,12 +1,12 @@
 
-import {Link, useActionData, useNavigate, useLocation} from "react-router-dom";
-import { useContext, useState } from "react";
+import {Link, useLocation} from "react-router-dom";
+import { useState } from "react";
 import axios from "axios";
 import ColorPicker from './colorPicker';
 
 
-
-function ActivityInput({ activity, color, onActivityChange, onColorChange }) {  
+// returns activity input widget that uses change functions from createActivitesForm() to update const variables (activity name and color)
+function ActivityInput({ activity, color, onActivityChange, onColorChange}) {  
     return (
       <div className="relative my-6 flex flex-row space-x-4">
         <input
@@ -22,18 +22,18 @@ function ActivityInput({ activity, color, onActivityChange, onColorChange }) {
 }
 
   
-export default function createActivitesForm({ onUpdateActivitiesAndClosePopup }) {
+export default function createActivitesForm({ updateActivities }) {
     
     const location = useLocation();
-
     const userData = location.state?.user;
     const userId = userData?.id;
 
 
-    // Grab username
+    // grab username
     const email = userData?.login
-    const name = email.split("@")[0]
+    const name = email?.split("@")[0]
 
+    // create preset array of maps for 4 activities
     const [activities, setActivities] = useState([
         { name: '', color: { r: 255, g: 255, b: 255, a: 1 } },
         { name: '', color: { r: 255, g: 255, b: 255, a: 1 } },
@@ -41,23 +41,25 @@ export default function createActivitesForm({ onUpdateActivitiesAndClosePopup })
         { name: '', color: { r: 255, g: 255, b: 255, a: 1 } },
     ]);
 
+    // grab current array of activities and update following activity name of the index[int] with new name
     const handleActivityChange = (index, newName) => {
-        //console.log("Input: ", newName)
-        setActivities((prevActivities) =>
-          prevActivities.map((activity, i) =>
-            i === index ? { ...activity, name: newName } : activity
-          )
-        );
-      };
+      //console.log("Input: ", newName)
+      setActivities((prevActivities) =>
+        prevActivities.map((activity, i) =>
+          i === index ? { ...activity, name: newName } : activity
+        )
+      );
+    };
     
-      const handleColorChange = (index, newColor) => {
-        //console.log(Index, ": ", `rgb(${newColor.rgb})`)
-        setActivities((prevActivities) =>
-          prevActivities.map((activity, i) =>
-            i === index ? { ...activity, color: newColor.rgb } : activity
-          )
-        );
-      };
+    // grab current array of activities and update following activity color of the index[int] with new color
+    const handleColorChange = (index, newColor) => {
+      //console.log(Index, ": ", `rgb(${newColor.rgb})`)
+      setActivities((prevActivities) =>
+        prevActivities.map((activity, i) =>
+          i === index ? { ...activity, color: newColor.rgb } : activity
+        )
+      );
+    };
     
 
     // Create activities and go to dashboard page
@@ -66,14 +68,15 @@ export default function createActivitesForm({ onUpdateActivitiesAndClosePopup })
         ev.preventDefault(); 
 
         try {
-
             const response = await axios.post(`https://auroratime.org/${userId}/createActivities`, {
                 activities: activities.map(({ name, color }) => ({ name, color })),
-
             });
+
             // console.log(response.data);
+
+            // if success, call method from MainPage.jsx to update activities and close the popup
             if (response.status === 201) {
-                onUpdateActivitiesAndClosePopup(response.data.activities);
+              updateActivities(response.data.activities);
             }
         } catch (error) {
             console.error("Error creating activities for the user:", error.response ? error.response.data : error.message);
@@ -86,20 +89,21 @@ export default function createActivitesForm({ onUpdateActivitiesAndClosePopup })
             <h1 className="text-4xl font-semibold text-center mb-2">Hi {name}!</h1>
             <h3 className="font-semibold text-center mb-6">Input 4 activities that you want to track!</h3>
             <form onSubmit={handleActivityCreation}>
-            {activities.map((activity, index) => (
-                <ActivityInput
-                    key={index}
-                    activity={activity.name}
-                    color={activity.color}
-                    onActivityChange={(newName) => handleActivityChange(index, newName)}
-                    onColorChange={(newColor) => handleColorChange(index, newColor)}
-                />
-            ))}
+              {/* Create n activity input fields where n is the length of activities array */}
+              {activities.map((activity, index) => (
+                  <ActivityInput
+                      key={index}
+                      activity={activity.name}
+                      color={activity.color}
+                      onActivityChange={(newName) => handleActivityChange(index, newName)}
+                      onColorChange={(newColor) => handleColorChange(index, newColor)}
+                  />
+              ))}
 
-                <button className="w-full mb-4 text-[18px] mt-4 rounded-full bg-white text-purple-500 hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300"type="submit">Create activities</button>
-                <div className="flex justify-center">
-                    <span><Link className="hover:text-purple-100 hover:underline" to='/login'>Return to login</Link></span>
-                </div>
+              <button className="w-full mb-4 text-[18px] mt-4 rounded-full bg-white text-purple-500 hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300"type="submit">Create activities</button>
+              <div className="flex justify-center">
+                  <span><Link className="hover:text-purple-100 hover:underline" to='/login'>Return to login</Link></span>
+              </div>
             </form>
         </div>
     )

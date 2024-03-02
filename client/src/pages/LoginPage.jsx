@@ -8,8 +8,12 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+    const [isError, setError] = useState(false); 
+
     async function handleLoginSubmit(ev) {
-        ev.preventDefault(); // Prevent the default form submissio
+        ev.preventDefault(); // Prevent the default form submission
+
+        setError(false);
 
         try {
             // Make the POST request to the API endpoint
@@ -26,7 +30,8 @@ const LoginPage = () => {
         } catch (error) {
             // If there's an error in the request, log it or display it to the user
             console.error("Error with login:", error.response ? error.response.data : error.message);
-            alert("Error registering the user.");
+            alert("Error logging in.");
+            setError(true);
         }
     }
     
@@ -60,7 +65,16 @@ const LoginPage = () => {
                         </div>
                         <span className="hover:text-purple-100 hover:underline">Forgot Password?</span>
                     </div>
-                    <button className="w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-purple-500 hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300"type="submit">Login</button>
+                    <button className="w-full mb-2 text-[18px] mt-6 rounded-full bg-white text-purple-500 hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300"type="submit">Login</button>
+                    {
+                        isError 
+                        ?
+                        <div className="text-red-300 font-bold flex justify-center">
+                            *Error logging in, please try again*
+                        </div>
+                        :
+                        null
+                    }
                     <div className="flex justify-center">
                         <span className="m-4">New User? <Link className="hover:text-purple-100 hover:underline" to='/register'>Create New Account</Link></span>
                     </div>
