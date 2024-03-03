@@ -30,7 +30,7 @@ export default function MainPage() {
 
     async function syncActivities(id) {
         const response = await axios.get(`https://auroratime.org/users/${id}`);
-        console.log(response.data.activities.stringify());
+        console.log(JSON.stringify(userData, null, 2));
         return response.data.activities;
     }
 
@@ -54,12 +54,7 @@ export default function MainPage() {
 
     // if the activities change, auto close log (assuming user just submitted form for adding/editing/deleting log)
     useEffect(() => {
-        setOpenAct(false);
-        setOpenLog(false);
-        setOpenEdit(false);
-
-        console.log(userData);
-        console.log(JSON.stringify(userData, null, 2));
+        //console.log(userData);
     }, [activities]);
 
     // if selectedAct is not empty (meaning user clicked on a bar in timeline), then open edit form
@@ -116,7 +111,7 @@ export default function MainPage() {
 			contentStyle={contentStyle} 
 			closeOnDocumentClick={!openAct} 
 			onClose={handleCloseAct}>
-                <CreateActivitiesForm updateActivities={updateActivities} />
+                <CreateActivitiesForm updateActivities={updateActivities} setOpenAct={setOpenAct}/>
             </Popup>
 
             <Popup 
@@ -129,7 +124,7 @@ export default function MainPage() {
                     <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseLog}>
                         X
                     </button>
-                    <AddLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} updateActivities={updateActivities}/>
+                    <AddLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} updateActivities={updateActivities} setOpenLog={setOpenLog}/>
                 </div>
             </Popup>
 
@@ -144,7 +139,7 @@ export default function MainPage() {
                         X
                     </button>
                     <EditLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} 
-                    selectedAct={selectedAct} updateActivities={updateActivities}
+                    selectedAct={selectedAct} updateActivities={updateActivities} setOpenEdit={setOpenEdit}
                     />
                 </div>
             </Popup>

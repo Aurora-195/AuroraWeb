@@ -6,7 +6,7 @@ import ColorPicker from './colorPicker';
 
 
 // returns activity input widget that uses change functions from createActivitesForm() to update const variables (activity name and color)
-function ActivityInput({ activity, color, onActivityChange, onColorChange}) {  
+function ActivityInput({ activity, color, onActivityChange, onColorChange, setOpenAct}) {  
     return (
       <div className="relative my-6 flex flex-row space-x-4">
         <input
@@ -78,6 +78,8 @@ export default function createActivitesForm({ updateActivities }) {
             if (response.status === 201) {
               updateActivities(response.data.activities);
             }
+
+            setOpenAct(false);
         } catch (error) {
             console.error("Error creating activities for the user:", error.response ? error.response.data : error.message);
             alert("Error creating activities for the user.");

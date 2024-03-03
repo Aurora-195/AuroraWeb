@@ -46,7 +46,7 @@ const css = `
   }
 `;
 
-export default function editLogForm({data, activityNames, selectedAct, updateActivities}) {
+export default function editLogForm({data, activityNames, selectedAct, updateActivities, setOpenEdit}) {
     const location = useLocation();
     const userData = location.state?.user;
     const userId = userData?.id;
@@ -211,6 +211,8 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
 
       // if edit button is available, then add new log
       if(isButton) {addLog(newAct, newLog);}
+
+      setOpenEdit(false);
     }
 
     // ----------------------------

@@ -46,7 +46,7 @@ const css = `
   }
 `;
 
-export default function addLogForm({data, activityNames, updateActivities}) {
+export default function addLogForm({data, activityNames, updateActivities, setOpenLog}) {
     // Stuff for userId for the POST request
     const location = useLocation();
     const userData = location.state?.user;
@@ -143,14 +143,17 @@ export default function addLogForm({data, activityNames, updateActivities}) {
             }
           });
 
-            console.log(`Sending log for activity: ${newLog} with data:`, newLog);
+          console.log(`Sending log for activity: ${newLog} with data:`, newLog);
 
-            const response = await axios.post(`https://auroratime.org/users/${userId}`, {
-                activityInstance: newLog,
-                name: activityName,
-            });
+          const response = await axios.post(`https://auroratime.org/users/${userId}`, {
+              activityInstance: newLog,
+              name: activityName,
+          });
+          
 
-        console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
+          console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
+
+          setOpenLog(false);
       } catch (error) {
           console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
           alert("Error adding log for the user.");
