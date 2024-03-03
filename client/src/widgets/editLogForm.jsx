@@ -239,7 +239,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
                 updateActivities(updatedActivities);
 
                 console.log("Found it! Deleting log.");
-                const response = axios.post(`https://auroratime.org/${userId}/deleteActivityInstance`, {
+                const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
                         activityInstance: log,
                         name: actName
                   });

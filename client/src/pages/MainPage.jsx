@@ -30,8 +30,8 @@ export default function MainPage() {
 
     async function syncActivities(id) {
         const response = await axios.get(`https://auroratime.org/users/${id}`);
-        console.log(response.data.user.activities.stringify());
-        return response.data.user.activities;
+        console.log(response.data.activities.stringify());
+        return response.data.activities;
     }
 
     // function for timeline chart where it needs to send the data of the bar that the user clicked on to mainpage for edit form
