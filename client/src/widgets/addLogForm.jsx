@@ -148,8 +148,7 @@ export default function addLogForm({data, activityNames, updateActivities}) {
             const response = await axios.post(`https://auroratime.org/users/${userId}`, {
                 activityInstance: newLog,
                 name: activityName,
-
-        });
+            });
 
         console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
       } catch (error) {

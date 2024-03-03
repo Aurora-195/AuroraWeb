@@ -10,6 +10,7 @@ import Line from '../charts/LineGraph';
 import CreateActivitiesForm from '../widgets/createActivitesForm';
 import AddLogForm from '../widgets/addLogForm';
 import EditLogForm from '../widgets/editLogForm';
+import axios from "axios";
 
 export default function MainPage() {
     const location = useLocation();
@@ -23,6 +24,15 @@ export default function MainPage() {
     const [openEdit, setOpenEdit] = useState(false);
 
     const [selectedAct, setSelectedAct] = useState('');
+
+
+    syncActivities(userData.id).then(r => console.log("Received Activities from the database"));
+
+    async function syncActivities(id) {
+        const response = await axios.get(`https://auroratime.org/users/${id}`);
+        console.log(response.data.user.activities.stringify());
+        return response.data.user.activities;
+    }
 
     // function for timeline chart where it needs to send the data of the bar that the user clicked on to mainpage for edit form
     const handleSelectedAct = (data) => {

@@ -239,6 +239,10 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
                 updateActivities(updatedActivities);
 
                 console.log("Found it! Deleting log.");
+                const response = axios.post(`https://auroratime.org/${userId}/deleteActivityInstance`, {
+                        activityInstance: log,
+                        name: actName
+                  });
                 return;
               }
               indexInst = indexInst + 1;
@@ -251,7 +255,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
         });
       }
       catch(error){
-        console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
+        console.error("Error deleting log for the user:", error.response ? error.response.data : error.message);
       }
     }
 
@@ -264,6 +268,10 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
           updateActivities(updatedActivities);
 
           console.log("Added log!");
+          const response = axios.post(`https://auroratime.org/users/${userId}`, {
+                activityInstance: newLog,
+                name: newName,
+          });
           return;
         }
         else
