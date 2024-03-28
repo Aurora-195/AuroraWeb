@@ -207,12 +207,53 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
       const newAct = activity;
       const newLog = getFormattedNewLog(selected, startTime, endTime);
 
-      deleteLog(oldAct, oldLog);
-
       // if edit button is available, then add new log
-      if(isButton) {addLog(newAct, newLog);}
+      if(isButton) {
+        // TO DO: check for overlap between logs. send error if there is conflict.
+        deleteLog(oldAct, oldLog);
+        addLog(newAct, newLog);
+      } else {
+        deleteLog(oldAct, oldLog);
+      }
 
       setOpenEdit(false);
+    }
+
+    // --------------------------
+    // ---- CHECK LOG OVERLAP ---
+    // --------------------------
+    function checkLogOverlap(log) {
+      const startTime = log.startTime;
+      const endTime = log.endTime;
+
+      console.log('Checking overlap');
+
+      // search logs with same date and then compare the times
+      let indexAct = 0;
+      // for each activity search through all of its instances/logs
+      activities.forEach((activity) => {
+        const updatedActivities = [...activities];
+        let indexInst = 0;
+
+        // for each instance/log of that activity, check if the log being added is overlapping with an existing log
+        // instance: startTime, endTime, status
+        updatedActivities[indexAct].instances.forEach((instance) => {
+          if (instance.startTime.localeCompare(startTime) == 0 && instance.endTime.localeCompare(endTime) == 0) {
+            console.log(updatedActivities[indexAct].instances[indexInst]);
+            // remove element from instance and update activities
+            updatedActivities[indexAct].instances.splice(indexInst, 1);
+            updateActivities(updatedActivities);
+
+            console.log("Found it! Deleting log.");
+            const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+                    activityInstance: log,
+                    name: actName
+              });
+            return;
+          }
+          indexInst = indexInst + 1;
+        });
+      });
     }
 
     // ----------------------------

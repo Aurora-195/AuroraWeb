@@ -9,24 +9,34 @@ export default function Layout() {
     const userData = location.state?.user;
     const isLoggedIn = userData?.id;
 
+    const email = userData?.login
+    const name = email?.split("@")[0]
+
     return (
         <div className="h-screen">
-            <header className="z-20 w-full sticky top-0 pl-4 py-4 flex flex-row items-center space-x-4 bg-[#13092c]">
-                <button 
-                onClick={() => setExpanded((curr) => !curr)}
-                className="hover:bg-purple-500 rounded-full p-2 stroke-white stroke-2"
-                >
-                    {isExpanded ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-7 h-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-7 h-7">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    ) }
-                </button>
-                <h1 className="text-4xl font-bold text-white">Aurora</h1>
+            <header className="z-20 w-full sticky top-0 px-4 py-4 flex justify-between items-center bg-[#13092c]">
+                <div className="flex flex-row space-x-4">
+                    <button 
+                    onClick={() => setExpanded((curr) => !curr)}
+                    className="hover:bg-purple-500 rounded-full p-2 stroke-white stroke-2"
+                    >
+                        {isExpanded ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-7 h-7">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-7 h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        ) }
+                    </button>
+                    <h1 className="text-4xl font-bold text-white">Aurora</h1>
+                </div>
+                {isLoggedIn ?
+                    <h1 className="text-2xl font-bold text-white">Hello {name}!</h1>
+                    :
+                    <h1 className="text-2xl font-bold text-white"></h1>
+                }
             </header>
             <div className="flex flex-row">
                 <div className={`transition-all h-screen ${isExpanded ? "w-0" : "w-56"} flex flex-col bg-[#13092c] text-white font-bold`}>

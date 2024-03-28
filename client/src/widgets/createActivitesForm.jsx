@@ -66,13 +66,14 @@ export default function createActivitesForm({ updateActivities }) {
     async function handleActivityCreation(ev) {
         
         ev.preventDefault(); 
+        console.log(activities);
 
         try {
-            const response = await axios.post(`https://auroratime.org/${userId}/createActivities`, {
+            const response = await axios.post(`https://auroratime.org/users/${userId}/createActivities`, {
                 activities: activities.map(({ name, color }) => ({ name, color })),
             });
 
-            // console.log(response.data);
+            //console.log(response.data);
 
             // if success, call method from MainPage.jsx to update activities and close the popup
             if (response.status === 201) {
