@@ -103,13 +103,34 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
       return `${dateStr}T${hours}:${minutes}:${seconds}Z`;
     }
 
+    // -----------------------------
+    // ---- CHECK OVERLAP LOGS -----
+    // -----------------------------
+    function checkLogOverlap(newLog) {
+      for (const activity of activities) {
+        for (const instance of activity.instances) {
+          const existingStartTime = new Date(instance.startTime).getTime();
+          const existingEndTime = new Date(instance.endTime).getTime();
+          const newStartTime = new Date(newLog.startTime).getTime();
+          const newEndTime = new Date(newLog.endTime).getTime();
+    
+          if ((newStartTime >= existingStartTime && newStartTime < existingEndTime) || 
+              (newEndTime > existingStartTime && newEndTime <= existingEndTime) ||
+              (newStartTime <= existingStartTime && newEndTime >= existingEndTime)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     // ---------------------
     // ------ ADD LOG ------
     // ---------------------
     // insert new instance inside activity data
     async function handleAddLog(ev) {
         ev.preventDefault();
-
+        
         //console.log("Data: ", activtitiesJson);
         //console.log("New log: ", activity," || ", selected, "  || ", startTime, " || ", endTime);
 
@@ -128,35 +149,41 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
           status: "completed",
         }
 
-        // try to find activity's instance map through activity name and add new instance/log there
-        try {
-          let index = 0;
-          activities.forEach((activity) => {
-            if (activity.name === activityName) {
-              const updatedActivities = [...activities];
-              updatedActivities[index].instances.push(newLog);
-              updateActivities(updatedActivities);
-            }
-            else
-            {
-              index = index + 1;
-            }
-          });
+        const isOverlapping = checkLogOverlap(newLog);
+        if (isOverlapping) {
+          alert("Error: The new log overlaps with an exisitng log.");
+        }
+        else {
+          // try to find activity's instance map through activity name and add new instance/log there
+          try {
+            let index = 0;
+            activities.forEach((activity) => {
+              if (activity.name === activityName) {
+                const updatedActivities = [...activities];
+                updatedActivities[index].instances.push(newLog);
+                updateActivities(updatedActivities);
+              }
+              else
+              {
+                index = index + 1;
+              }
+            });
 
-          console.log(`Sending log for activity: ${newLog} with data:`, newLog);
+            console.log(`Sending log for activity: ${newLog} with data:`, newLog);
 
-          const response = await axios.post(`https://auroratime.org/users/${userId}`, {
-              activityInstance: newLog,
-              name: activityName,
-          });
-          
+            const response = await axios.post(`https://auroratime.org/users/${userId}`, {
+                activityInstance: newLog,
+                name: activityName,
+            });
+            
 
-          console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
+            console.log(`New JSON: ${JSON.stringify(activities, null, 2)}`);
 
-          setOpenLog(false);
-      } catch (error) {
-          console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
-          alert("Error adding log for the user.");
+            setOpenLog(false);
+        } catch (error) {
+            console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
+            alert("Error adding log for the user.");
+        }
       }
     }
     
@@ -167,7 +194,7 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
                 <select 
                 value={activityName} 
                 onChange={(ev) => setActivityName(ev.target.value)}
-                className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600 peer">
+                className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600 peer">
                   <option value={activityNames[0]}>  {activityNames[0]}</option>
                   <option value={activityNames[1]}>  {activityNames[1]}</option>
                   <option value={activityNames[2]}>  {activityNames[2]}</option>

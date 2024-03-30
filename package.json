@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "apexcharts": "^3.48.0",
+    "date-fns": "^3.6.0",
+    "react-apexcharts": "^1.4.1",
+    "react-day-picker": "^8.10.0"
+  }
+}
