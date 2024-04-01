@@ -17,7 +17,8 @@ export default function MainPage() {
     const userData = location.state?.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
     
     // contains data of activities, use this to get JSON for adding and editing logs
-    const [activities, setActivities] = useState(userData?.activities || []);
+    // array type so use .length to check its length
+    const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
 
     const [openAct, setOpenAct] = useState(false);
     const [openLog, setOpenLog] = useState(false);
@@ -25,13 +26,11 @@ export default function MainPage() {
 
     const [selectedAct, setSelectedAct] = useState('');
 
-
-    syncActivities(userData.id).then(r => console.log("Received Activities from the database"));
-
     async function syncActivities(id) {
         const response = await axios.get(`https://auroratime.org/users/${id}`);
-        console.log(JSON.stringify(userData, null, 2));
-        return response.data.activities;
+        //console.log(JSON.stringify(response.data, null, 2));
+        setActivities(response.data);
+        return response.data;
     }
 
     // function for timeline chart where it needs to send the data of the bar that the user clicked on to mainpage for edit form
@@ -45,16 +44,18 @@ export default function MainPage() {
         closeOnEscape: 'false',
     };
 
+
     // mainly for new accounts that require selecting 4 activities 
     useEffect(() => {
-        setActivities(userData?.activities || []);
-        handleCloseAct();
-        //console.log("Activity Names: ", activityNames);
+        syncActivities(userData.id).then(
+            r => console.log("Received latest activity data from the database")
+        );
+        //getActivityNames();
     }, [userData]);
 
-    // if the activities change, auto close log (assuming user just submitted form for adding/editing/deleting log)
     useEffect(() => {
-        //console.log(userData);
+        console.log(JSON.stringify(activities, null, 2));
+        handleCloseAct();
     }, [activities]);
 
     // if selectedAct is not empty (meaning user clicked on a bar in timeline), then open edit form
@@ -68,9 +69,15 @@ export default function MainPage() {
     const handleCloseAct = () => {
         if (activities == undefined) {return}
 
+        //console.log("ACTIVITIES");
+        //console.log(activities.length);
+
         // Prevent closing if the condition is not met
         if (activities.length === 0) {
             setOpenAct(true);
+        }
+        else {
+            setOpenAct(false);
         }
     };
 
@@ -84,6 +91,7 @@ export default function MainPage() {
 
     // use this function in classes that require updating activities map
     const updateActivities = (newActivities) => {
+        console.log("Updated activities on client side.");
         setActivities(newActivities);
     };
 
@@ -100,6 +108,8 @@ export default function MainPage() {
         });
 
         const arr = Array.from(map.keys())
+
+        //console.log(arr);
 
         return arr;
     }

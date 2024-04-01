@@ -212,10 +212,10 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
         // TO DO: check for overlap between logs. send error if there is conflict.
         deleteLog(oldAct, oldLog);
         addLog(newAct, newLog);
-      } else {
+      } 
+      else {
         deleteLog(oldAct, oldLog);
       }
-
       setOpenEdit(false);
     }
 
@@ -248,7 +248,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
             const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
                     activityInstance: log,
                     name: actName
-              });
+            });
             return;
           }
           indexInst = indexInst + 1;
@@ -264,8 +264,6 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
       const endTime = log.endTime;
 
       try {
-        console.log('Delete log');
-
         // find activity name, look for instance using attributes of log
         let indexAct = 0;
         activities.forEach((activity) => {
@@ -281,11 +279,11 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
                 updatedActivities[indexAct].instances.splice(indexInst, 1);
                 updateActivities(updatedActivities);
 
-                console.log("Found it! Deleting log.");
                 const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
                         activityInstance: log,
                         name: actName
-                  });
+                });
+                console.log("Found and deleted log.");
                 return;
               }
               indexInst = indexInst + 1;
@@ -303,25 +301,30 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
     }
 
     function addLog(newName, newLog) {
-      let indexAct = 0;
-      activities.forEach((activity) => {
-        if (activity.name === newName) {
-          const updatedActivities = [...activities];
-          updatedActivities[indexAct].instances.push(newLog);
-          updateActivities(updatedActivities);
-
-          console.log("Added log!");
-          const response = axios.post(`https://auroratime.org/users/${userId}`, {
-                activityInstance: newLog,
-                name: newName,
-          });
-          return;
-        }
-        else
-        {
-          indexAct = indexAct + 1;
-        }
-      });
+      try {
+        let indexAct = 0;
+        activities.forEach((activity) => {
+          if (activity.name === newName) {
+            const updatedActivities = [...activities];
+            updatedActivities[indexAct].instances.push(newLog);
+            updateActivities(updatedActivities);
+  
+            const response = axios.post(`https://auroratime.org/users/${userId}`, {
+                  activityInstance: newLog,
+                  name: newName,
+            });
+            console.log("Added log.");
+            return;
+          }
+          else
+          {
+            indexAct = indexAct + 1;
+          }
+        });
+    } catch (error) {
+        console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
+        alert("Error adding log for the user.");
+    }
     }
     
     return (
