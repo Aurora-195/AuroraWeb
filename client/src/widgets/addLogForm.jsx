@@ -149,6 +149,7 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
           status: "completed",
         }
 
+        // check for overlap logs
         const isOverlapping = checkLogOverlap(newLog);
         if (isOverlapping) {
           alert("Error: The new log overlaps with an exisitng log.");

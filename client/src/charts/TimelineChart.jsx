@@ -60,9 +60,37 @@ function TimelineChart({data, handleSelectedAct}) {
   // auto sort date list if new dates are added to dateList or if dates are removed
   useEffect(() => {
     //console.log("Number: ", dateList.size)
-    const sortedDateList = [...dateList.entries()].sort((a, b) => new Date(a[0]) - new Date(b[0]));
-    setDateList(new Map(sortedDateList));
-  }, [dateList.size]);
+    if (data) {
+      const deletedDates = new Set();
+      data.forEach(activity => {
+        activity.instances.forEach(instance => {
+          const dateStr = new Date(instance.startTime).toISOString().split('T')[0];
+          if (!data.some(activity => activity.instances.some(inst => new Date(inst.startTime).toISOString().split('T')[0] === dateStr))) {
+            deletedDates.add(dateStr);
+          }
+        });
+      });
+      const updatedDateList = new Map([...dateList.entries()].filter(([date]) => !deletedDates.has(date)));
+      setDateList(updatedDateList);
+    }
+  }, [data, dateList]);
+
+  // Update dateList when data changes
+  useEffect(() => {
+    if (data) {
+      const updatedDateList = new Map();
+
+      data.forEach(activity => {
+        activity.instances.forEach(instance => {
+          const dateStr = new Date(instance.startTime).toISOString().split('T')[0];
+          updatedDateList.set(dateStr, 1);
+        });
+      });
+      const sortedDateList = new Map([...updatedDateList.entries()].sort());
+
+      setDateList(sortedDateList);
+    }
+  }, [data]);
 
 
   //console.log("Date List: ", Array.from(dateList.keys()))

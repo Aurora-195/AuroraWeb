@@ -18,7 +18,17 @@ export default function MainPage() {
     
     // contains data of activities, use this to get JSON for adding and editing logs
     // array type so use .length to check its length
-    const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
+    //const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
+    const [activities, setActivities] = useState([]);
+    useEffect(() => {
+        if (userData) {
+            axios.get(`https://auroratime.org/users/${userData.id}`).then(response => {
+                setActivities(response.data);
+            }).catch(error => {
+                console.error('Error fetching activities:', error);
+            })
+        }
+    }, [userData]);
 
     const [openAct, setOpenAct] = useState(false);
     const [openLog, setOpenLog] = useState(false);
