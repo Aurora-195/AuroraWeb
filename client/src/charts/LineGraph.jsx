@@ -2,29 +2,23 @@ import { ResponsiveLine } from '@nivo/line'
 import { linearGradientDef } from '@nivo/core'
 
 export default function LineGraph({data}) {
-  if (data === undefined) return;
-  else if (data.length == 0) return;
+  if (data === undefined || data.length === 0) return;
   
-  const lineData = data.map(activity => {
-    return {
+  const lineData = data.map(activity => ({
       data: activity.instances.map(instance => {
-        const x = instance.startTime.slice(0, 10);
-        const y =
-          instance.status === "completed"
-            ? calculateDuration(instance.startTime, instance.endTime)
-            : 0;
+        const x = instance.startTime ? instance.startTime.slice(0, 10) : null;
+        const y = instance.status === "completed" && instance.endTime ? calculateDuration(instance.startTime, instance.endTime) : 0;
   
         return { x, y };
-      }),
+      }).filter(point => point.x !== null),
       id: activity.name,
       color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`,
-    };
-  });
+  }));
   
   function calculateDuration(startTime, endTime) {
-    if (!endTime) {
-      return 0;
-    }
+    // if (!endTime) {
+    //   return 0;
+    // }
   
     const start = new Date(startTime);
     const end = new Date(endTime);

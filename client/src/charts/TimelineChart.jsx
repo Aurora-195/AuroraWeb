@@ -15,51 +15,40 @@ function TimelineChart({data, handleSelectedAct}) {
   // if data changes, then auto update into usable data for Timeline chart
   useEffect(() => {
     if (data) {
-      const convertedData = data.map((activity) => {
-        // grab completed instances from activity data
+      const updatedChartData = data.flatMap((activity) => {
         const completedInstances = activity.instances.filter((instance) => instance.status === "completed");
-
-        // if the map (completed instances) is not empty, then return usable data, else return nothing
+  
         if (completedInstances.length > 0) {
           return {
             name: activity.name,
             data: completedInstances.map(instance => {
               const startTime = new Date(instance.startTime);
               const endTime = new Date(instance.endTime);
-
+  
               const dateStr = startTime.toISOString().split('T')[0];
-
-              if (!dateList.has(dateStr)) {
-                setDateList(prevDateList => new Map(prevDateList).set(dateStr, 1));
-              }
-
+  
               return {
-                // YYYY-MM-DD
-                x: dateStr, 
-
-                // Day, 31 Dec 1899 00:00:00 GMT
+                x: dateStr,
                 y: [
                   Date.UTC(1970, 0, 1, startTime.getUTCHours(), startTime.getUTCMinutes()),
                   Date.UTC(1970, 0, 1, endTime.getUTCHours(), endTime.getUTCMinutes())
-                ],
+                ]
               };
             }),
-            color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`, 
+            color: activity.color ? `rgb(${activity.color.r || 0}, ${activity.color.g || 0}, ${activity.color.b || 0})` : 'blue',
           };
         } else {
-          return {};
+          return [];
         }
-
-      }).filter((activity) => Object.keys(activity).length !== 0); // filter out activites that have no instances/recordings
-
-      setChartData(convertedData);
+      }).filter((activity) => activity.length !== 0);
+  
+      setChartData(updatedChartData);
     }
-  }, [data, dateList]);
+  }, [data]);
   const { minY, maxY, tickAmount } = findMinMaxTime(data);
 
   // auto sort date list if new dates are added to dateList or if dates are removed
   useEffect(() => {
-    //console.log("Number: ", dateList.size)
     if (data) {
       const deletedDates = new Set();
       data.forEach(activity => {
@@ -71,15 +60,15 @@ function TimelineChart({data, handleSelectedAct}) {
         });
       });
       const updatedDateList = new Map([...dateList.entries()].filter(([date]) => !deletedDates.has(date)));
-      setDateList(updatedDateList);
+      setDateList(prevDateList => updatedDateList);
     }
-  }, [data, dateList]);
+  }, [data]);
 
   // Update dateList when data changes
   useEffect(() => {
     if (data) {
       const updatedDateList = new Map();
-
+  
       data.forEach(activity => {
         activity.instances.forEach(instance => {
           const dateStr = new Date(instance.startTime).toISOString().split('T')[0];
@@ -87,7 +76,7 @@ function TimelineChart({data, handleSelectedAct}) {
         });
       });
       const sortedDateList = new Map([...updatedDateList.entries()].sort());
-
+  
       setDateList(sortedDateList);
     }
   }, [data]);
