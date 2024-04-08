@@ -194,9 +194,9 @@ export default function MainPage() {
                         <div className="border-2 rounded-md shadow-lg h-[300px]">
                             <Pie data={activities}/>
                         </div>
-                        <div className="col-span-2 border-2 rounded-md shadow-lg h-[300px] px-2">
-                            <Line data={activities}/>
-                        </div>
+                        <div className="col-span-3 border-2 rounded-md shadow-lg h-[300px] px-2">
+                        <Line data={activities}/>
+                    </div>
                     </div>
                 </div>
             </div>

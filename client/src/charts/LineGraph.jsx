@@ -1,75 +1,75 @@
-import { ResponsiveLine } from '@nivo/line'
-import { linearGradientDef } from '@nivo/core'
+import React from 'react';
+import { ResponsiveLine } from '@nivo/line';
 
-export default function LineGraph({data}) {
-  if (data === undefined || data.length === 0) return;
-  
-  const lineData = data.map(activity => ({
-      data: activity.instances.map(instance => {
-        const x = instance.startTime ? instance.startTime.slice(0, 10) : null;
-        const y = instance.status === "completed" && instance.endTime ? calculateDuration(instance.startTime, instance.endTime) : 0;
-  
-        return { x, y };
-      }).filter(point => point.x !== null),
-      id: activity.name,
-      color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`,
-  }));
-  
-  function calculateDuration(startTime, endTime) {
-    // if (!endTime) {
-    //   return 0;
-    // }
-  
+const calculateDuration = (startTime, endTime) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
-    const durationInMilliseconds = end - start;
-    const durationInHours = (durationInMilliseconds / (1000 * 60 * 60)).toFixed(2);
-  
+    const durationInHours = (end - start) / (1000 * 60 * 60);
     return durationInHours;
-  }
-
-  //console.log("LINE DATA");
-  //console.log(lineData);
-
-  return (<ResponsiveLine
-    animate
-    axisBottom={{
-      format: '%b %d',
-      legend: 'Dates',
-      legendOffset: 30,
-      legendPosition: 'middle',
-      tickValues: 'every 2 days'
-    }}
-    axisLeft={{
-      legend: 'Time (hr)',
-      legendOffset: -33,
-      legendPosition: 'middle',
-    }}
-    curve="stepAfter"
-    data={lineData}
-    height={400}
-    margin={{
-      bottom: 150,
-      left: 40,
-      right: 20,
-      top: 40
-    }}
-
-    colors={(d) => d.color} 
-    pointBorderWidth={2}
-    pointColor={{ theme: 'background' }}
-    pointBorderColor={{ from: 'serieColor' }}
-    pointSize={10}
-    useMesh
-    xFormat="time:%Y-%m-%d"
-    xScale={{
-      format: '%Y-%m-%d',
-      precision: 'day',
-      type: 'time',
-      useUTC: false
-    }}
-    yScale={{
-      type: 'linear'
-    }}
-  />);
 }
+
+const LineGraph = ({ data }) => {
+    if (!data || data.length === 0) return null;
+
+    const lineData = data.map(activity => ({
+        id: activity.name,
+        color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`,
+        data: activity.instances.map(instance => ({
+            x: instance.startTime ? instance.startTime.slice(0, 10) : null,
+            y: instance.status === "completed" && instance.endTime 
+                ? calculateDuration(instance.startTime, instance.endTime) 
+                : 0,
+            activity: activity.name // Add activity name to data point
+        }))
+    }));
+
+    return (
+        <div style={{ position: 'relative', height: '250px' }}> {/* Adjust the height here */}
+            <ResponsiveLine
+                data={lineData}
+                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+                xScale={{ type: 'point' }}
+                yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false, reverse: false, tickValues: 5 }}
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                    orient: 'bottom',
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: 'Dates',
+                    legendOffset: 36,
+                    legendPosition: 'middle'
+                }}
+                axisLeft={{
+                    orient: 'left',
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: 'Hours',
+                    legendOffset: -40,
+                    legendPosition: 'middle'
+                }}
+                colors={(d) => d.color}
+                lineWidth={3}
+                enablePoints={true}
+                enableGridX={false}
+                enableGridY={true}
+                pointSize={10}
+                useMesh={true}
+                curve="monotoneX"
+                onMouseMove={(event) => {
+                    console.log(event);
+                }}
+                tooltip={({ point }) => (
+                    <div style={{ background: 'white', padding: '5px', border: '1px solid black' }}>
+                        <div>{point.data.activity}</div>
+                        <div>Hours: {point.data.y}</div>
+                    </div>
+                )}
+            />
+        </div>
+    );
+}
+
+export default LineGraph;
