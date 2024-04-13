@@ -260,7 +260,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
         });
 
         // edit (delete old, add new) server side
-        const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+        const response = axios.post(`https://auroratime.org/users/${userId}/editActivityInstance`, {
           oldActivityInstance:  oldLog,
           oldActivityName:      oldActName,
           newActivityInstance:  newLog,
