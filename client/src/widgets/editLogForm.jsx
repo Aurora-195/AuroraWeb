@@ -200,65 +200,79 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
       // ev.preventDefault() is required to prevent site from breaking when submitting form, always use for buttons in forms
       ev.preventDefault();
       
-      // delete old log and add new log
-      const oldAct = selectedAct['name'];
+      const oldActName = selectedAct['name'];
       const oldLog = getFormattedOldLog(selectedAct['date'], selectedAct['startTime'], selectedAct['endTime']);
-
-      const newAct = activity;
+      const newActName = activity;
       const newLog = getFormattedNewLog(selected, startTime, endTime);
 
-      // if edit button is available, then add new log
+      // if edit button is available, edit log
       if(isButton) {
         // TO DO: check for overlap between logs. send error if there is conflict.
-        deleteLog(oldAct, oldLog);
-        addLog(newAct, newLog);
-      } 
-      else {
-        deleteLog(oldAct, oldLog);
+        editLog(oldActName, oldLog, newActName, newLog)
+      } else {
+        deleteLog(oldActName, oldLog);
       }
       setOpenEdit(false);
     }
 
-    // --------------------------
-    // ---- CHECK LOG OVERLAP ---
-    // --------------------------
-    function checkLogOverlap(log) {
-      const startTime = log.startTime;
-      const endTime = log.endTime;
+    function editLog(oldActName, oldLog, newActName, newLog) {
+      try {
+        const startTime = oldLog.startTime;
+        const endTime = oldLog.endTime;
 
-      console.log('Checking overlap');
+        // use type 'let' if variable will change later in code
+        let indexAct = 0;
+        let isDeleted = false;
+        let isAdded = false;
 
-      // search logs with same date and then compare the times
-      let indexAct = 0;
-      // for each activity search through all of its instances/logs
-      activities.forEach((activity) => {
-        const updatedActivities = [...activities];
-        let indexInst = 0;
+        activities.forEach((activity) => {
+          // DELETE OLD log client side
+          if (activity.name === oldActName && !isDeleted) {
+            const updatedActivities = [...activities];
+            let indexInst = 0;
 
-        // for each instance/log of that activity, check if the log being added is overlapping with an existing log
-        // instance: startTime, endTime, status
-        updatedActivities[indexAct].instances.forEach((instance) => {
-          if (instance.startTime.localeCompare(startTime) == 0 && instance.endTime.localeCompare(endTime) == 0) {
-            console.log(updatedActivities[indexAct].instances[indexInst]);
-            // remove element from instance and update activities
-            updatedActivities[indexAct].instances.splice(indexInst, 1);
-            updateActivities(updatedActivities);
-
-            console.log("Found it! Deleting log.");
-            const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
-                    activityInstance: log,
-                    name: actName
+            // instance: startTime, endTime, status
+            updatedActivities[indexAct].instances.forEach((instance) => {
+              if (instance.startTime.localeCompare(startTime) == 0 && instance.endTime.localeCompare(endTime) == 0) {
+                console.log(updatedActivities[indexAct].instances[indexInst]);
+                
+                // remove element from instance and update activities
+                updatedActivities[indexAct].instances.splice(indexInst, 1);
+                updateActivities(updatedActivities);
+                isDeleted = true;
+                return;
+              }
+              indexInst = indexInst + 1;
             });
-            return;
           }
-          indexInst = indexInst + 1;
+
+          // ADD NEW log client side
+          if (activity.name === newActName && !isAdded) {
+            const updatedActivities = [...activities];
+            updatedActivities[indexAct].instances.push(newLog);
+            updateActivities(updatedActivities);
+            isAdded = true;
+          }
+
+          if (isAdded && isDeleted) return;
+          
+          indexAct = indexAct + 1;
         });
-      });
+
+        // edit (delete old, add new) server side
+        const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+          oldActivityInstance:  oldLog,
+          oldActivityName:      oldActName,
+          newActivityInstance:  newLog,
+          newActivityName:      newActName,
+        });
+        console.log("Edited log.");
+      }
+      catch(error) {
+        console.error("Error editing log for the user:", error.response ? error.response.data : error.message);
+      }
     }
 
-    // ----------------------------
-    // ------ DELETE/ADD LOG ------
-    // ----------------------------
     function deleteLog(actName, log) {
       const startTime = log.startTime;
       const endTime = log.endTime;
@@ -300,31 +314,41 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
       }
     }
 
-    function addLog(newName, newLog) {
-      try {
-        let indexAct = 0;
-        activities.forEach((activity) => {
-          if (activity.name === newName) {
-            const updatedActivities = [...activities];
-            updatedActivities[indexAct].instances.push(newLog);
+    // --------------------------
+    // ---- CHECK LOG OVERLAP ---
+    // --------------------------
+    function checkLogOverlap(log) {
+      const startTime = log.startTime;
+      const endTime = log.endTime;
+
+      console.log('Checking overlap');
+
+      // search logs with same date and then compare the times
+      let indexAct = 0;
+      // for each activity search through all of its instances/logs
+      activities.forEach((activity) => {
+        const updatedActivities = [...activities];
+        let indexInst = 0;
+
+        // for each instance/log of that activity, check if the log being added is overlapping with an existing log
+        // instance: startTime, endTime, status
+        updatedActivities[indexAct].instances.forEach((instance) => {
+          if (instance.startTime.localeCompare(startTime) == 0 && instance.endTime.localeCompare(endTime) == 0) {
+            console.log(updatedActivities[indexAct].instances[indexInst]);
+            // remove element from instance and update activities
+            updatedActivities[indexAct].instances.splice(indexInst, 1);
             updateActivities(updatedActivities);
-  
-            const response = axios.post(`https://auroratime.org/users/${userId}`, {
-                  activityInstance: newLog,
-                  name: newName,
+
+            console.log("Found it! Deleting log.");
+            const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+                    activityInstance: log,
+                    name: actName
             });
-            console.log("Added log.");
             return;
           }
-          else
-          {
-            indexAct = indexAct + 1;
-          }
+          indexInst = indexInst + 1;
         });
-    } catch (error) {
-        console.error("Error adding log for the user:", error.response ? error.response.data : error.message);
-        alert("Error adding log for the user.");
-    }
+      });
     }
     
     return (

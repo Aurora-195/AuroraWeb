@@ -26,6 +26,8 @@ function TimelineChart({data, handleSelectedAct}) {
               const endTime = new Date(instance.endTime);
   
               const dateStr = startTime.toISOString().split('T')[0];
+              //const dateObj = new Date(dateStr);
+              //console.log(new Date(dateStr));
   
               return {
                 x: dateStr,
@@ -109,6 +111,10 @@ function TimelineChart({data, handleSelectedAct}) {
         // `seriesIndex` and `dataPointIndex`
         dataPointSelection: function(event, chartContext, config) {
           //console.log(config.w.config);
+          console.log(config.w.config.series[config.seriesIndex].name);
+          console.log(config.w.config.series[config.seriesIndex].data[config.dataPointIndex].x);
+          console.log(config.w.config.series[config.seriesIndex].data[config.dataPointIndex].y[0]);
+          console.log(config.w.config.series[config.seriesIndex].data[config.dataPointIndex].y[1]);
           handleSelectedAct({
               'name':       config.w.config.series[config.seriesIndex].name,
               'date':       config.w.config.series[config.seriesIndex].data[config.dataPointIndex].x,
@@ -135,7 +141,10 @@ function TimelineChart({data, handleSelectedAct}) {
       //tickAmount: 30,
       type: 'categories',
       categories: Array.from(dateList.keys()),
-      //type: 'datetime',
+      type: 'datetime',
+      title: {
+        text: 'Dates'
+    },
     },
     yaxis: {
       type: 'datetime',
@@ -149,6 +158,9 @@ function TimelineChart({data, handleSelectedAct}) {
         },
         show: true,
       },
+      title: {
+        text: 'Time'
+    },
     },
     legend: {
       position: 'left',
@@ -158,7 +170,7 @@ function TimelineChart({data, handleSelectedAct}) {
 
   return (
     <div>
-      <Chart options={options} series={chartData} type='rangeBar' height={250} />      
+      <Chart options={options} series={chartData} type='rangeBar' height={350} />      
     </div>
   );
 }

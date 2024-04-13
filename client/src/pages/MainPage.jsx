@@ -18,17 +18,11 @@ export default function MainPage() {
     
     // contains data of activities, use this to get JSON for adding and editing logs
     // array type so use .length to check its length
-    //const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
-    const [activities, setActivities] = useState([]);
-    useEffect(() => {
-        if (userData) {
-            axios.get(`https://auroratime.org/users/${userData.id}`).then(response => {
-                setActivities(response.data);
-            }).catch(error => {
-                console.error('Error fetching activities:', error);
-            })
-        }
-    }, [userData]);
+    const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
+    //const [activityNames, setActivityNames] = useState(activities ? getActivityNames(activities) : ['Activity 1', 'Activity 2', 'Activity 3', 'Activity 4' ]);
+    const [activityNames, setActivityNames] = useState(getActivityNames(activities));
+
+    //const [activities, setActivities] = useState([]);
 
     const [openAct, setOpenAct] = useState(false);
     const [openLog, setOpenLog] = useState(false);
@@ -38,8 +32,10 @@ export default function MainPage() {
 
     async function syncActivities(id) {
         const response = await axios.get(`https://auroratime.org/users/${id}`);
-        //console.log(JSON.stringify(response.data, null, 2));
         setActivities(response.data);
+        setActivityNames(getActivityNames(response.data));
+        console.log(JSON.stringify(activities, null, 2));
+        console.log(activityNames);
         return response.data;
     }
 
@@ -58,13 +54,14 @@ export default function MainPage() {
     // mainly for new accounts that require selecting 4 activities 
     useEffect(() => {
         syncActivities(userData.id).then(
-            r => console.log("Received latest activity data from the database")
-        );
-        //getActivityNames();
+            r => {
+                console.log("Received latest activity data from the database")
+            }).catch(error => {
+                console.error('Error fetching activities:', error);
+        });
     }, [userData]);
 
     useEffect(() => {
-        console.log(JSON.stringify(activities, null, 2));
         handleCloseAct();
     }, [activities]);
 
@@ -108,7 +105,6 @@ export default function MainPage() {
 
     function getActivityNames(activities) {
         if (activities == undefined) {return;}
-
         if (activities.length === 0) {return;}
 
         const map = new Map();
@@ -144,7 +140,7 @@ export default function MainPage() {
                     <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseLog}>
                         X
                     </button>
-                    <AddLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} updateActivities={updateActivities} setOpenLog={setOpenLog}/>
+                    <AddLogForm className="z-0" data={activities} activityNames={activityNames} updateActivities={updateActivities} setOpenLog={setOpenLog}/>
                 </div>
             </Popup>
 
@@ -158,7 +154,7 @@ export default function MainPage() {
                     <button className="z-10 font-bold text-sm text-purple-500 bg-white rounded-full w-10 h-10 absolute right-1 m-1 hover:bg-purple-500 hover:text-white transition-colors duration-300" onClick={handleCloseEdit}>
                         X
                     </button>
-                    <EditLogForm className="z-0" data={activities} activityNames={getActivityNames(userData?.activities)} 
+                    <EditLogForm className="z-0" data={activities} activityNames={activityNames} 
                     selectedAct={selectedAct} updateActivities={updateActivities} setOpenEdit={setOpenEdit}
                     />
                 </div>
@@ -181,20 +177,26 @@ export default function MainPage() {
                     </div>
                 </div>
                 */}
-                <div className="col-span-3 flex flex-col border-2 rounded-md h-fill">
+                <div className="col-span-3 flex flex-col border-2 rounded-md h-[450px] p-2">
                     <div className="px-4 pt-4">
-                        <button className="w-24 text-[14px] rounded-full bg-emerald-400 font-semibold text-white hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300" onClick={() => setOpenLog(true)}>
-                            Add log
-                        </button>
+                        {
+                            activityNames
+                            ?
+                            <button className="w-24 text-[14px] rounded-full bg-emerald-400 font-semibold text-white hover:bg-purple-500 hover:text-white py-2 transition-colors duration-300" onClick={() => setOpenLog(true)}>Add log</button>
+                            :
+                            <button disabled className="w-24 text-[14px] rounded-full bg-[#939393] font-semibold text-white py-2" onClick={() => setOpenLog(true)}>Add log</button>
+                        }
                     </div>
-                    <Timeline data={activities} handleSelectedAct={handleSelectedAct}/>
+                    <div>
+                        <Timeline data={activities} handleSelectedAct={handleSelectedAct}/>
+                    </div>
                 </div>
                 <div className="col-span-3">
-                    <div className="grid grid-cols-3 gap-2">
-                        <div className="border-2 rounded-md shadow-lg h-[300px]">
+                    <div className="grid grid-cols-4 gap-2">
+                        <div className="border-2 rounded-md shadow-lg h-[450px] p-2">
                             <Pie data={activities}/>
                         </div>
-                        <div className="col-span-3 border-2 rounded-md shadow-lg h-[300px] px-2">
+                        <div className="col-span-3 border-2 rounded-md shadow-lg h-[450px] p-2">
                         <Line data={activities}/>
                     </div>
                     </div>

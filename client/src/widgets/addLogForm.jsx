@@ -53,7 +53,7 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
     const userId = userData?.id;
     //
 
-    const [activityName, setActivityName] = useState(activityNames[0]);
+    const [activityName, setActivityName] = useState(activityNames ? activityNames[0] : 'Activity Name');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [selected, setSelected] = useState(new Date());
@@ -195,7 +195,7 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
                 <select 
                 value={activityName} 
                 onChange={(ev) => setActivityName(ev.target.value)}
-                className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600 peer">
+                className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer">
                   <option value={activityNames[0]}>  {activityNames[0]}</option>
                   <option value={activityNames[1]}>  {activityNames[1]}</option>
                   <option value={activityNames[2]}>  {activityNames[2]}</option>

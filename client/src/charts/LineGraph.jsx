@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResponsiveLine } from '@nivo/line';
+import Chart from 'react-apexcharts';
 
 const calculateDuration = (startTime, endTime) => {
     const start = new Date(startTime);
@@ -11,63 +11,107 @@ const calculateDuration = (startTime, endTime) => {
 const LineGraph = ({ data }) => {
     if (!data || data.length === 0) return null;
 
+    // store total duration for each activity on each day
+    const dailyDurationMap = new Map();
+
+    // calculate and add to dailyDurationMap
+    data.forEach(activity => {
+        activity.instances.forEach(instance => {
+            const date = instance.startTime.slice(0, 10);
+            const duration = calculateDuration(instance.startTime, instance.endTime);
+            const totalDuration = dailyDurationMap.get(date) || {};
+            totalDuration[activity.name] = (totalDuration[activity.name] || 0) + duration;
+            dailyDurationMap.set(date, totalDuration);
+        });
+    });
+
+    // get all distinct dates
+    const allDates = Array.from(dailyDurationMap.keys());
+    allDates.sort();
+
     const lineData = data.map(activity => ({
         id: activity.name,
         color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`,
-        data: activity.instances.map(instance => ({
-            x: instance.startTime ? instance.startTime.slice(0, 10) : null,
-            y: instance.status === "completed" && instance.endTime 
-                ? calculateDuration(instance.startTime, instance.endTime) 
-                : 0,
-            activity: activity.name // Add activity name to data point
+        data: allDates.map(date => ({
+            x: date,
+            y: (dailyDurationMap.get(date) && dailyDurationMap.get(date)[activity.name]) || 0
         }))
     }));
 
+    const options = {
+        chart: {
+            type: 'line',
+            toolbar: {
+                show: true,
+                offsetX: 0,
+                offsetY: 0,
+                tools: {
+                    download: false,
+                    selection: true,
+                    zoom: true,
+                    zoomin: true,
+                    zoomout: true,
+                    pan: true,
+                    reset: true | '<img src="/static/icons/reset.png" width="20">',
+                    customIcons: [],
+                },
+            },
+        },
+        fill: {
+            type: 'solid',
+        },
+        stroke: {
+            width: 4,
+            curve: 'straight',
+        },
+        markers: {
+            size: 6,
+            colors: undefined,
+            strokeColors: '#fff',
+            strokeWidth: 2,
+            strokeOpacity: 0.9,
+            strokeDashArray: 0,
+            fillOpacity: 1,
+            discrete: [],
+            shape: "circle",
+            radius: 2,
+            offsetX: 0,
+            offsetY: 0,
+            onClick: undefined,
+            onDblClick: undefined,
+            showNullDataPoints: true,
+            hover: {
+                size: undefined,
+                sizeOffset: 3
+            }
+        },
+        xaxis: {
+            tickPlacement: 'between',
+            categories: allDates,
+            type: 'datetime',
+            title: {
+                text: 'Dates'
+            },
+        },
+        yaxis: {
+            tickAmount: 0,
+            title: {
+                text: 'Hours'
+            },
+            labels: {
+                formatter: function (value) {
+                    return Math.round(value * 10) / 10;
+                }
+            }
+        },
+        legend: {
+            show: false
+        },
+    };
+
     return (
-        <div style={{ position: 'relative', height: '250px' }}> {/* Adjust the height here */}
-            <ResponsiveLine
-                data={lineData}
-                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-                xScale={{ type: 'point' }}
-                yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false, reverse: false, tickValues: 5 }}
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                    orient: 'bottom',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Dates',
-                    legendOffset: 36,
-                    legendPosition: 'middle'
-                }}
-                axisLeft={{
-                    orient: 'left',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Hours',
-                    legendOffset: -40,
-                    legendPosition: 'middle'
-                }}
-                colors={(d) => d.color}
-                lineWidth={3}
-                enablePoints={true}
-                enableGridX={false}
-                enableGridY={true}
-                pointSize={10}
-                useMesh={true}
-                curve="monotoneX"
-                onMouseMove={(event) => {
-                    console.log(event);
-                }}
-                tooltip={({ point }) => (
-                    <div style={{ background: 'white', padding: '5px', border: '1px solid black' }}>
-                        <div>{point.data.activity}</div>
-                        <div>Hours: {point.data.y}</div>
-                    </div>
-                )}
-            />
+        <div>
+            <Chart options={options} series={lineData} type='line' height={400} />
         </div>
     );
 }
