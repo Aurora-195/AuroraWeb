@@ -94,7 +94,7 @@ const LineGraph = ({ data }) => {
             },
         },
         yaxis: {
-            tickAmount: 0,
+            tickAmount: 12,
             title: {
                 text: 'Hours'
             },
