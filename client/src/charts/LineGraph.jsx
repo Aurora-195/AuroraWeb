@@ -11,13 +11,14 @@ const calculateDuration = (startTime, endTime) => {
 const LineGraph = ({ data }) => {
     if (!data || data.length === 0) return null;
 
-    // store total duration for each activity on each day
+    // Store total duration for each activity on each day
     const dailyDurationMap = new Map();
 
-    // calculate and add to dailyDurationMap
+    // Calculate and add to dailyDurationMap
     data.forEach(activity => {
         activity.instances.forEach(instance => {
-            const date = instance.startTime.slice(0, 10);
+            const date = instance.startTime ? instance.startTime.slice(0, 10) : null;
+            if (!date) return;
             const duration = calculateDuration(instance.startTime, instance.endTime);
             const totalDuration = dailyDurationMap.get(date) || {};
             totalDuration[activity.name] = (totalDuration[activity.name] || 0) + duration;
@@ -37,7 +38,7 @@ const LineGraph = ({ data }) => {
             y: (dailyDurationMap.get(date) && dailyDurationMap.get(date)[activity.name]) || 0
         }))
     }));
-
+    
     const options = {
         chart: {
             type: 'line',
