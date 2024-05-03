@@ -3,7 +3,7 @@ import {Link, useLocation} from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import ColorPicker from './colorPicker';
-
+import { useAuth } from "../useAuth";
 
 // returns activity input widget that uses change functions from createActivitesForm() to update const variables (activity name and color)
 function ActivityInput({ activity, color, onActivityChange, onColorChange}) {  
@@ -24,13 +24,10 @@ function ActivityInput({ activity, color, onActivityChange, onColorChange}) {
   
 export default function createActivitesForm({ updateActivities, setOpenAct }) {
     
-    const location = useLocation();
-    const userData = location.state?.user;
-    const userId = userData?.id;
-
+    const { user } = useAuth();
 
     // grab username
-    const email = userData?.login
+    const email = user.userLogin
     const name = email?.split("@")[0]
 
     // create preset array of maps for 4 activities
@@ -107,7 +104,7 @@ export default function createActivitesForm({ updateActivities, setOpenAct }) {
         console.log("Activity Creation: No duplicates found -> Creating activities");
 
         try {
-            const response = await axios.post(`https://auroratime.org/users/${userId}/createActivities`, {
+            const response = await axios.post(`https://auroratime.org/users/${user.userId}/createActivities`, {
                 activities: activities.map(({ name, color }) => ({ name, color })),
             });
 

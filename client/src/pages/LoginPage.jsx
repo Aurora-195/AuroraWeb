@@ -1,14 +1,14 @@
 import {Link, useActionData, useNavigate} from "react-router-dom";
 import { useContext, useState } from "react";
 import axios from "axios";
-
+import { useAuth } from "../useAuth";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigate = useNavigate();
 
     const [isError, setError] = useState(false); 
+    const { login } = useAuth();
 
     async function handleLoginSubmit(ev) {
         ev.preventDefault(); // Prevent the default form submission
@@ -24,9 +24,11 @@ const LoginPage = () => {
                 withCredentials: true // Important for cookies, authorization headers
             });
 
-            // If the response is successful, redirect to the home page
-            // console.log(response.data);
-            navigate('/main', { state: { user: response.data.user } });
+            const user = response.data.user;
+            const userId = response.data.user.id;
+            const userLogin = email;
+
+            await login({ user, userId, userLogin });
         } catch (error) {
             // If there's an error in the request, log it or display it to the user
             console.error("Error with login:", error.response ? error.response.data : error.message);

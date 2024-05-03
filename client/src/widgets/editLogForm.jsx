@@ -4,6 +4,7 @@ import axios from "axios";
 import { format } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { useAuth } from "../useAuth";
   
 const css = `
   .my-selected:not([disabled]) { 
@@ -47,9 +48,7 @@ const css = `
 `;
 
 export default function editLogForm({data, activityNames, selectedAct, updateActivities, setOpenEdit}) {
-    const location = useLocation();
-    const userData = location.state?.user;
-    const userId = userData?.id;
+    const { user } = useAuth();
   
     const [activity, setActivity] = useState(selectedAct['name']);
     const [startTime, setStartTime] = useState(formatTimeFromMillisec(selectedAct['startTime']));
@@ -260,7 +259,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
         });
 
         // edit (delete old, add new) server side
-        const response = axios.post(`https://auroratime.org/users/${userId}/editActivityInstance`, {
+        const response = axios.post(`https://auroratime.org/users/${user.userId}/editActivityInstance`, {
           oldActivityInstance:  oldLog,
           oldActivityName:      oldActName,
           newActivityInstance:  newLog,
@@ -293,7 +292,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
                 updatedActivities[indexAct].instances.splice(indexInst, 1);
                 updateActivities(updatedActivities);
 
-                const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+                const response = axios.post(`https://auroratime.org/users/${user.userId}/deleteActivityInstance`, {
                         activityInstance: log,
                         name: actName
                 });
@@ -340,7 +339,7 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
             updateActivities(updatedActivities);
 
             console.log("Found it! Deleting log.");
-            const response = axios.post(`https://auroratime.org/users/${userId}/deleteActivityInstance`, {
+            const response = axios.post(`https://auroratime.org/users/${user.userId}/deleteActivityInstance`, {
                     activityInstance: log,
                     name: actName
             });

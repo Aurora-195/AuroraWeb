@@ -4,7 +4,8 @@ import axios from "axios";
 import { format } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-  
+import { useAuth } from "../useAuth";
+
 const css = `
   .my-selected:not([disabled]) { 
     font-weight: bold; 
@@ -48,9 +49,7 @@ const css = `
 
 export default function addLogForm({data, activityNames, updateActivities, setOpenLog}) {
     // Stuff for userId for the POST request
-    const location = useLocation();
-    const userData = location.state?.user;
-    const userId = userData?.id;
+    const { user } = useAuth();
     //
 
     const [activityName, setActivityName] = useState(activityNames ? activityNames[0] : 'Activity Name');
@@ -172,7 +171,7 @@ export default function addLogForm({data, activityNames, updateActivities, setOp
 
             console.log(`Sending log for activity: ${newLog} with data:`, newLog);
 
-            const response = await axios.post(`https://auroratime.org/users/${userId}`, {
+            const response = await axios.post(`https://auroratime.org/users/${user.userId}`, {
                 activityInstance: newLog,
                 name: activityName,
             });

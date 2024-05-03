@@ -1,6 +1,5 @@
 
 import React, { useEffect, useContext, useState } from "react";
-import {useLocation} from "react-router-dom";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 
@@ -11,14 +10,14 @@ import CreateActivitiesForm from '../widgets/createActivitesForm';
 import AddLogForm from '../widgets/addLogForm';
 import EditLogForm from '../widgets/editLogForm';
 import axios from "axios";
+import { useAuth } from "../useAuth";
 
 export default function MainPage() {
-    const location = useLocation();
-    const userData = location.state?.user; // The array is double nested for some reason, so we need to have .user.user to get the pure data.
-    
+    const { user } = useAuth();
+
     // contains data of activities, use this to get JSON for adding and editing logs
     // array type so use .length to check its length
-    const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${userData.id}`).data);
+    const [activities, setActivities] = useState(axios.get(`https://auroratime.org/users/${user.userId}`).data);
     //const [activityNames, setActivityNames] = useState(activities ? getActivityNames(activities) : ['Activity 1', 'Activity 2', 'Activity 3', 'Activity 4' ]);
     const [activityNames, setActivityNames] = useState(getActivityNames(activities));
 
@@ -53,13 +52,13 @@ export default function MainPage() {
 
     // mainly for new accounts that require selecting 4 activities 
     useEffect(() => {
-        syncActivities(userData.id).then(
+        syncActivities(user.userId).then(
             r => {
                 console.log("Received latest activity data from the database")
             }).catch(error => {
                 console.error('Error fetching activities:', error);
         });
-    }, [userData]);
+    }, [user]);
 
     useEffect(() => {
         handleCloseAct();
