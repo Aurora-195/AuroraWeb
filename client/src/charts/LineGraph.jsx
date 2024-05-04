@@ -31,7 +31,7 @@ const LineGraph = ({ data }) => {
     allDates.sort();
 
     const lineData = data.map(activity => ({
-        id: activity.name,
+        name: activity.name, // Set activity name as legend name
         color: `rgb(${activity.color.r}, ${activity.color.g}, ${activity.color.b})`,
         data: allDates.map(date => ({
             x: date,
@@ -106,7 +106,14 @@ const LineGraph = ({ data }) => {
             }
         },
         legend: {
-            show: false
+            show: true,
+            position: 'top',
+            onItemClick: {
+                toggleDataSeries: false
+            },
+            onItemHover: {
+                highlightDataSeries: true
+            },
         },
     };
 
