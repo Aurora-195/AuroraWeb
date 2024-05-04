@@ -22,7 +22,7 @@ export default function IndexPage() {
         </div>
         <div className="text-white px-20 py-32 mt-36 flex flex-row space-x-40">
           <div className="flex-1 w-8/12">
-            <h1 className="text-4xl font-semibold mb-5">Track your time with the help of a virtual assistant.</h1>
+            <h1 className="text-4xl font-semibold mb-5">What is Aurora?</h1>
             <p>{timeDescription}</p>
           </div>
           <div className="flex w-72 h-72">
@@ -32,7 +32,7 @@ export default function IndexPage() {
 
         <div className="text-white px-20 py-32 flex flex-row space-x-40 bg-[#242424]">
           <div className="w-128">
-            <h1 className="flex-initial text-4xl font-semibold mb-5">See your data in real time.</h1>
+            <h1 className="flex-initial text-4xl font-semibold mb-5">Audit your time effortlessly.</h1>
             <p>{appDescription}</p>
           </div>
           <div className="justify-end">
