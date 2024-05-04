@@ -273,40 +273,25 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
     }
 
     function deleteLog(actName, log) {
-      const startTime = log.startTime;
-      const endTime = log.endTime;
-
       try {
-        // find activity name, look for instance using attributes of log
-        let indexAct = 0;
-        activities.forEach((activity) => {
+        const updatedActivities = activities.map(activity => {
           if (activity.name === actName) {
-            const updatedActivities = [...activities];
-            let indexInst = 0;
-
-            // instance: startTime, endTime, status
-            updatedActivities[indexAct].instances.forEach((instance) => {
-              if (instance.startTime.localeCompare(startTime) == 0 && instance.endTime.localeCompare(endTime) == 0) {
-                console.log(updatedActivities[indexAct].instances[indexInst]);
-                // remove element from instance and update activities
-                updatedActivities[indexAct].instances.splice(indexInst, 1);
-                updateActivities(updatedActivities);
-
-                const response = axios.post(`https://auroratime.org/users/${user.userId}/deleteActivityInstance`, {
-                        activityInstance: log,
-                        name: actName
-                });
-                console.log("Found and deleted log.");
-                return;
-              }
-              indexInst = indexInst + 1;
+            const updatedInstances = activity.instances.filter(instance => {
+              return !(instance.startTime === log.startTime && instance.endTime === log.endTime);
             });
+            return { ...activity, instances: updatedInstances };
           }
-          else
-          {
-            indexAct = indexAct + 1;
-          }
+          return activity;
         });
+        
+        updateActivities(updatedActivities);
+    
+        const response = axios.post(`https://auroratime.org/users/${user.userId}/deleteActivityInstance`, {
+          activityInstance: log,
+          name: actName
+        });
+        
+        console.log("Deleted log.");
       }
       catch(error){
         console.error("Error deleting log for the user:", error.response ? error.response.data : error.message);
@@ -358,10 +343,10 @@ export default function editLogForm({data, activityNames, selectedAct, updateAct
                 onChange={(ev) => setActivity(ev.target.value)}
                 className="placeholder-gray block w-72 text-2xl font-bold text-white bg-transparent border-0 border-b-2 border-grey-300 appearance-none dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600 peer"
                 defaultValue={activity}>
-                  <option value={activityNames[0]}>  {activityNames[0]}</option>
-                  <option value={activityNames[1]}>  {activityNames[1]}</option>
-                  <option value={activityNames[2]}>  {activityNames[2]}</option>
-                  <option value={activityNames[3]}>  {activityNames[3]}</option>
+                  <option className="text-black" value={activityNames[0]}>  {activityNames[0]}</option>
+                  <option className="text-black" value={activityNames[1]}>  {activityNames[1]}</option>
+                  <option className="text-black" value={activityNames[2]}>  {activityNames[2]}</option>
+                  <option className="text-black" value={activityNames[3]}>  {activityNames[3]}</option>
                 </select>
                 <div className="flex justify-center items-center flex-col">
                   <div className="py-2">

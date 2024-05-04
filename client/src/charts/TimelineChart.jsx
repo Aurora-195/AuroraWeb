@@ -139,7 +139,6 @@ function TimelineChart({data, handleSelectedAct}) {
     xaxis: {
       tickPlacement: 'between',
       //tickAmount: 30,
-      type: 'categories',
       categories: Array.from(dateList.keys()),
       type: 'datetime',
       title: {
