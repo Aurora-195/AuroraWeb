@@ -118,6 +118,7 @@ export default function createActivitesForm({ updateActivities, setOpenAct }) {
             console.log("Activity Creation: Activities created");
 
             setOpenAct(false);
+            window.location.reload();
         } catch (error) {
             console.error("Activity Creation: Error creating activities for the user:", error.response ? error.response.data : error.message);
             alert("Error creating activities for the user.");
